@@ -1,0 +1,18 @@
+{
+    "header": {
+        "oOfferType": null,
+        "oSalesOrganization": null,
+        "oChannel": null,
+        "oSector": null,
+        "oSalesOffice": null,
+        "oSalesGroup": null,
+        "customerOrder": null,
+        "orderDate": null,
+        "oRequester": null,
+        "department": null,
+        "paymentTerms": null,
+        "validFromDate": null,
+        "oCurrency": null
+    },
+    "arrMaterial": []
+}

@@ -1,0 +1,24 @@
+{
+  "generationParameters": {
+    "generationDate": "Tue Oct 14 2025 18:19:30 GMT+0000 (Coordinated Universal Time)",
+    "generatorPlatform": "SAP Business Application Studio",
+    "serviceType": "None",
+    "metadataFilename": "",
+    "serviceUrl": "N/A",
+    "appName": "contractmanagement",
+    "appTitle": "Contract Management",
+    "appDescription": "Contract Management",
+    "appNamespace": "contractmanagement",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.141.1",
+    "enableCodeAssist": true,
+    "enableEslint": false,
+    "enableTypeScript": true,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.19.1",
+    "template": "Basic",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [],
+    "launchText": "To launch the generated application, run the following from the generated application root folder:\n\n```\n    npm start\n```"
+  }
+}

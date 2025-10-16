@@ -1,0 +1,40 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+    <TableSelectDialog
+		noDataText="{i18n>noData}"
+		title="{i18n>offerType}"
+		search=".onSearchOfferType"
+		confirm=".onSelectOfferType"
+		showClearButton="true"
+		items= "{
+			path : 'ZSD_CATALOGOS_SRV>/DocumentClassSet',
+			filters:{
+				path: 'Vbtyp',
+				operator: 'EQ',
+				value1: 'B'
+			}
+		}"
+		contentHeight= "30%"
+		contentWidth="30%"
+		resizable="true">
+		<ColumnListItem>
+			<cells>
+                <Text text="{ZSD_CATALOGOS_SRV>Auart}"/>
+                <Text text="{ZSD_CATALOGOS_SRV>Bezei}"/>
+			</cells>
+		</ColumnListItem>
+		<columns>
+			<Column minScreenWidth="Tablet" demandPopin="true" width="12em">
+				<header>
+					<Text text="{i18n>code}" />
+				</header>
+			</Column>
+			<Column minScreenWidth="Tablet" demandPopin="true" width="12em">
+				<header>
+					<Text text="{i18n>description}" />
+				</header>
+			</Column>
+		</columns>
+	</TableSelectDialog>
+</core:FragmentDefinition>

@@ -1,0 +1,145 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "contractmanagement.contractmanagement",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.19.1",
+      "toolsId": "2fcb91fe-d4b3-415a-912f-4533057edd51"
+    },
+    "dataSources": {
+      "contractManagement": {
+        "uri": "model/contractManagement.model.json",
+        "type": "JSON"
+      },
+      "ZSD_CATALOGOS_SRV": {
+        "uri": "sap/opu/odata/sap/ZSD_CATALOGOS_SRV",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "contentmanager-Display": {
+          "semanticObject": "contentmanager",
+          "action": "Display",
+          "title": "{{contentmanager-Display.flpTitle}}",
+          "subTitle": "{{contentmanager-Display.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.141.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.f": {},
+        "sap.ui.table": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "contractmanagement.contractmanagement.i18n.i18n"
+        }
+      },
+      "mContractManagement":{
+        "dataSource": "contractManagement",
+        "type": "sap.ui.model.json.JSONModel"
+      },
+      "ZSD_CATALOGOS_SRV": {
+        "dataSource": "ZSD_CATALOGOS_SRV",
+        "preload": true,
+        "settings": {
+          "useBatch": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "contractmanagement.contractmanagement.view",
+        "async": true,
+        "viewPath": "contractmanagement.contractmanagement.view"
+      },
+      "routes": [
+        {
+          "name": "RouteMain",
+          "pattern": ":?query:",
+          "target": [
+            "TargetMain"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetMain": {
+          "id": "Main",
+          "name": "Main"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "contractmanagement.contractmanagement.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "contractmanagementcontractmanagement"
+  }
+}
