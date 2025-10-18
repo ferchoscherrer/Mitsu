@@ -14,6 +14,8 @@ import { TableSelectDialog$ConfirmEvent, TableSelectDialog$SearchEvent } from "s
 import { Items } from "../model/types";
 import Input, { Input$ValueHelpRequestEvent } from "sap/m/Input";
 import formatter from "../model/formatter";
+import Table, { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
+import MessageBox from "sap/m/MessageBox";
 
 /**
  * @namespace contractmanagement.contractmanagement.controller
@@ -36,8 +38,11 @@ export default class Main extends Controller {
     private oFragmentRequester: Dialog;
     private oFragmentCurrency: Dialog;
     private oFragmentMaterial: Dialog;
+    private oFragmentCabe: Dialog;
+    private oFragmentOrderReason: Dialog;
 
     private sPahtMaterial: string;
+    private iIndexSelectRowMaterial: number;
 
     /*eslint-disable @typescript-eslint/no-empty-function*/
     public onInit(): void {
@@ -319,21 +324,53 @@ export default class Main extends Controller {
         }
     }
 
-    public addMaterial(){        
+    public addMaterial(){
         let arrMaterial : Items[] = this.oContractManagement.getProperty(`/arrMaterial`);
         const oMaterial : Items = {
-            oMaterial: undefined
+            oMaterial: null,
+            oCebe: null,
+            selectedKeyCenter: null,
+            oOrderReason: null,
+            netValue: 0,
+            selectedWorkingHours: null,
+            selectedCustomerGroup1: null,
+            selectedCustomerGroup3: null
         }
 
         arrMaterial.push(oMaterial);
-
         this.oContractManagement.refresh(true);
     }
 
-    public async onOpenPopUpMaterial(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
+    public onDeleteRow(){
+        const oTable = this.byId("tblMaterial") as Table;
+        const arrMaterial : Items[] = this.oContractManagement.getProperty(`/arrMaterial`);
+
+        if (this.iIndexSelectRowMaterial < 0) {
+            MessageBox.alert(this.oI18n.getText("errorDeleteRows") ?? '')
+        } else {
+            arrMaterial.splice(this.iIndexSelectRowMaterial,1);
+            this.oContractManagement.refresh(true);
+            oTable.clearSelection();
+            this.iIndexSelectRowMaterial = -1;
+        }
+
+    }
+
+    public onSelectRow(oEvent : Table$RowSelectionChangeEvent){
+        const oSource : Table = oEvent.getSource();
+        const iSelectedRow : number = oSource.getSelectedIndex();
+
+        this.iIndexSelectRowMaterial = iSelectedRow;
+    }
+
+    private onGetPathMaterial(oEvent : Input$ValueHelpRequestEvent) {
         const oSource : Input = oEvent.getSource();
         const oBindingContext = oSource.getBindingContext("mContractManagement") as ContextV2;
         this.sPahtMaterial = oBindingContext.getPath();
+    }
+
+    public async onOpenPopUpMaterial(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
+        this.onGetPathMaterial(oEvent);
 
         this.oFragmentMaterial ??= await Fragment.load({
             id: this.getView()?.getId(),
@@ -367,4 +404,77 @@ export default class Main extends Controller {
                 this.sPahtMaterial = '';
             }
     }
+
+    public async onOpenPopUpCebe(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
+        this.onGetPathMaterial(oEvent);
+
+        this.oFragmentCabe ??= await Fragment.load({
+            id: this.getView()?.getId(),
+            name: "contractmanagement.contractmanagement.view.fragment.TblCebe",
+            controller: this,
+        }) as Dialog;
+
+        this.getView()?.addDependent(this.oFragmentCabe);
+        this.oFragmentCabe.open();
+    }
+
+    public onSearchCebe(oEvent: TableSelectDialog$SearchEvent): void {
+
+        let sValue: string = oEvent.getParameter("value") || "";
+        let oFilter = new Filter({
+            filters: [
+                new Filter("Profit", FilterOperator.Contains, sValue),
+                new Filter("Description", FilterOperator.Contains, sValue)
+            ],
+            and: false
+        });
+        let oBinding = oEvent.getSource().getBinding("items") as ODataListBinding;
+        oBinding.filter([oFilter]);
+    }
+
+    public onSelectCebe(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+        if (this.sPahtMaterial)
+            for(const oSelect of oSelectedContext){
+                this.oContractManagement.setProperty(`${this.sPahtMaterial}/oCebe`, oSelect.getObject());
+                this.sPahtMaterial = '';
+            }
+    }
+
+    public async onOpenPopUpOrderReason(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
+        this.onGetPathMaterial(oEvent);
+
+        this.oFragmentOrderReason ??= await Fragment.load({
+            id: this.getView()?.getId(),
+            name: "contractmanagement.contractmanagement.view.fragment.TblOrderReason",
+            controller: this,
+        }) as Dialog;
+
+        this.getView()?.addDependent(this.oFragmentOrderReason);
+        this.oFragmentOrderReason.open();
+    }
+
+    public onSearchOrderReason(oEvent: TableSelectDialog$SearchEvent): void {
+
+        let sValue: string = oEvent.getParameter("value") || "";
+        let oFilter = new Filter({
+            filters: [
+                new Filter("Reason", FilterOperator.Contains, sValue),
+                new Filter("Description", FilterOperator.Contains, sValue)
+            ],
+            and: false
+        });
+        let oBinding = oEvent.getSource().getBinding("items") as ODataListBinding;
+        oBinding.filter([oFilter]);
+    }
+
+    public onSelectOrderReason(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+        if (this.sPahtMaterial)
+            for(const oSelect of oSelectedContext){
+                this.oContractManagement.setProperty(`${this.sPahtMaterial}/oOrderReason`, oSelect.getObject());
+                this.sPahtMaterial = '';
+            }
+    }
+    
 }

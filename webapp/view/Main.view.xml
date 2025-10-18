@@ -122,6 +122,7 @@
                 </form:SimpleForm>
 
                 <t:Table 
+                    id="tblMaterial"
                     alternateRowColors="true"
                     busyIndicatorDelay="0"
                     enableColumnFreeze="true"
@@ -129,6 +130,7 @@
                     enableColumnReordering="true"
                     showNoData="true"
                     selectionBehavior="RowOnly"
+                    rowSelectionChange="onSelectRow"
                     rows="{mContractManagement>/arrMaterial}"
                     selectionMode="Single"
                     rowActionCount="1">
@@ -138,6 +140,7 @@
                             <ToolbarSpacer />
                             <Button text="{i18n>assignEquipment}" type="Transparent" icon="sap-icon://add-product"/>
                             <Button text="{i18n>addMaterial}" press="addMaterial" type="Emphasized" icon="sap-icon://add" />
+                            <Button press="onDeleteRow" type="Reject" icon="sap-icon://delete" />
                         </OverflowToolbar>                        
                     </t:extension>
                     <t:columns >
@@ -155,67 +158,79 @@
                                 />
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="13rem">
                             <Text text="{i18n>cebe}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpCebe"
+                                    value="{path:'mContractManagement>oCebe/Profit'}" 
+                                />
                             </t:template>
                         </t:Column>                       
-                        <t:Column >
+                        <t:Column width="10rem">
                             <Text text="{i18n>center}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/PlantCodeSet'}" showSecondaryValues="true" forceSelection="false" selectedKey="{path:'mContractManagement>selectedKeyCenter'}" >
+                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Plant}" text="{ZSD_CATALOGOS_SRV>Plant}"  additionalText="{ZSD_CATALOGOS_SRV>Description}" />
+                                </Select>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="20rem">
                             <Text text="{i18n>reasonOrder}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpOrderReason"
+                                    value="{path:'mContractManagement>oOrderReason/Reason'} - {path:'mContractManagement>oOrderReason/Description'}" 
+                                />
                             </t:template>
                         </t:Column>                       
-                        <t:Column >
+                        <t:Column width="8rem">
                             <Text text="{i18n>netValue}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Input value="{path: 'mContractManagement>netValue'}"/>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="13rem">
                             <Text text="{i18n>workingHours}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem3Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedWorkingHours'}" >
+                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                </Select>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="10rem">
                             <Text text="{i18n>customerGroup1}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem1Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup1'}" >
+                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                </Select>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="10rem">
                             <Text text="{i18n>customerGroup3}"/>
-                            <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                            <t:template >                                
+                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem2Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup3'}" >
+                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                </Select>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="6rem">
                             <Text text="{i18n>paymentMethod}"/>
                             <t:template >
                                 <Text text="{path: 'mContractManagement>nameRecipient'}"/>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="15rem">
                             <Text text="{i18n>validFromUntil}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                               <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="6rem">
                             <Text text="{i18n>viewEquipment}"/>
                             <t:template >
                                 <Text text="{path: 'mContractManagement>nameRecipient'}"/>
                             </t:template>
                         </t:Column>
-                        <t:Column >
+                        <t:Column width="6rem">
                             <Text text="{i18n>cup}"/>
                             <t:template >
                                 <Text text="{path: 'mContractManagement>nameRecipient'}"/>
