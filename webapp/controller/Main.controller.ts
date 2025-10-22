@@ -11,11 +11,13 @@ import Dialog from "sap/m/Dialog";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
 import { TableSelectDialog$ConfirmEvent, TableSelectDialog$SearchEvent } from "sap/m/TableSelectDialog";
-import { Items } from "../model/types";
+import { Customer, Items } from "../model/types";
 import Input, { Input$ValueHelpRequestEvent } from "sap/m/Input";
 import formatter from "../model/formatter";
 import Table, { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
 import MessageBox from "sap/m/MessageBox";
+import BusyIndicator from "sap/ui/core/BusyIndicator";
+import busydialog from "sap/ca/ui/utils/busydialog";
 
 /**
  * @namespace contractmanagement.contractmanagement.controller
@@ -42,7 +44,7 @@ export default class Main extends Controller {
     private oFragmentOrderReason: Dialog;
 
     private sPahtMaterial: string;
-    private iIndexSelectRowMaterial: number;
+    private arrIndexSelectRowMaterial: number[] = [];
 
     /*eslint-disable @typescript-eslint/no-empty-function*/
     public onInit(): void {
@@ -345,22 +347,24 @@ export default class Main extends Controller {
         const oTable = this.byId("tblMaterial") as Table;
         const arrMaterial : Items[] = this.oContractManagement.getProperty(`/arrMaterial`);
 
-        if (this.iIndexSelectRowMaterial < 0) {
+        if (this.arrIndexSelectRowMaterial.length === 0) {
             MessageBox.alert(this.oI18n.getText("errorDeleteRows") ?? '')
         } else {
-            arrMaterial.splice(this.iIndexSelectRowMaterial,1);
+            for (const indexRowSelect of this.arrIndexSelectRowMaterial){
+                arrMaterial.splice(indexRowSelect,1);   
+            }
             this.oContractManagement.refresh(true);
             oTable.clearSelection();
-            this.iIndexSelectRowMaterial = -1;
+            this.arrIndexSelectRowMaterial = [];
         }
 
     }
 
     public onSelectRow(oEvent : Table$RowSelectionChangeEvent){
         const oSource : Table = oEvent.getSource();
-        const iSelectedRow : number = oSource.getSelectedIndex();
+        const arrSelectedRow : number[] = oSource.getSelectedIndices();
 
-        this.iIndexSelectRowMaterial = iSelectedRow;
+        this.arrIndexSelectRowMaterial = arrSelectedRow;
     }
 
     private onGetPathMaterial(oEvent : Input$ValueHelpRequestEvent) {
@@ -475,6 +479,36 @@ export default class Main extends Controller {
                 this.oContractManagement.setProperty(`${this.sPahtMaterial}/oOrderReason`, oSelect.getObject());
                 this.sPahtMaterial = '';
             }
+    }
+
+    public onAssignEquipment() { 
+        BusyIndicator.show(0);
+        try {
+            const oTable = this.byId("tblMaterial") as Table;
+            const oRequester : Customer = this.oContractManagement.getProperty(`/header/oRequester`);
+
+            // if (this.arrIndexSelectRowMaterial.length === 0) throw new Error(this.oI18n.getText("errorAddEquipment") ?? '');
+            this._onValidateData();
+            
+            this.oRouter.navTo("RouteEquipment",{
+                query:{
+                    kunnr: oRequester.CustomerCode,
+                    oMaterial: this.arrIndexSelectRowMaterial
+                }
+            })
+        } catch (oError: any) {
+            MessageBox.error(oError.message);
+        } finally {
+            BusyIndicator.hide()
+        }
+    }
+
+    private _onValidateData(){        
+        const oRequester : Customer = this.oContractManagement.getProperty(`/header/oRequester`);
+
+        if (this.arrIndexSelectRowMaterial.length === 0) throw new Error(this.oI18n.getText("errorAddEquipment") ?? '');
+
+        if (!oRequester) throw new Error(this.oI18n.getText('errorCustomer'))
     }
     
 }

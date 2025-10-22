@@ -14,5 +14,6 @@
         "validFromDate": null,
         "oCurrency": null
     },
-    "arrMaterial": []
+    "arrMaterial": [],
+    "arrEquipment": []
 }

@@ -129,16 +129,16 @@
                     enableSelectAll="true"
                     enableColumnReordering="true"
                     showNoData="true"
-                    selectionBehavior="RowOnly"
+                    selectionBehavior="RowSelector"
                     rowSelectionChange="onSelectRow"
                     rows="{mContractManagement>/arrMaterial}"
-                    selectionMode="Single"
+                    selectionMode="MultiToggle"
                     rowActionCount="1">
                     <t:extension>
                         <OverflowToolbar>
                             <Title text="{i18n>material}s ({= ${mContractManagement>/arrMaterial}.length })"/>
                             <ToolbarSpacer />
-                            <Button text="{i18n>assignEquipment}" type="Transparent" icon="sap-icon://add-product"/>
+                            <Button text="{i18n>assignEquipment}" press="onAssignEquipment" type="Transparent" icon="sap-icon://add-product"/>
                             <Button text="{i18n>addMaterial}" press="addMaterial" type="Emphasized" icon="sap-icon://add" />
                             <Button press="onDeleteRow" type="Reject" icon="sap-icon://delete" />
                         </OverflowToolbar>                        

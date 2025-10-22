@@ -122,12 +122,23 @@
           "target": [
             "TargetMain"
           ]
+        },
+        {
+          "name": "RouteEquipment",
+          "pattern": "equipment/{?query}",
+          "target":["TargetEquipment"]
         }
       ],
       "targets": {
         "TargetMain": {
           "id": "Main",
-          "name": "Main"
+          "name": "Main",
+          "lavel": 1
+        },
+        "TargetEquipment": {
+          "id": "Equipment",
+          "name": "Equipment",
+          "lavel": 2
         }
       }
     },
