@@ -485,16 +485,12 @@ export default class Main extends Controller {
     public onAssignEquipment() { 
         BusyIndicator.show(0);
         try {
-            const oRequester : Customer = this.oContractManagement.getProperty(`/header/oRequester`);
-
             this._onValidateData();
-            
-            this.oRouter.navTo("RouteEquipment",{
-                query:{
-                    kunnr: oRequester.CustomerCode,
-                    oMaterial: this.arrIndexSelectRowMaterial
-                }
-            })
+
+            this.oRouter.getTargets()?.display("TargetEquipment", {
+                materialPositions: this.arrIndexSelectRowMaterial,
+                fromTarget: "TargetMain"
+            });
         } catch (oError: any) {
             MessageBox.error(oError.message);
         } finally {

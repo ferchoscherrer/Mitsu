@@ -21,6 +21,11 @@ export interface DetailRouteArg{
     "?query" : Query
 }
 
+export interface RoutingEquipment {
+  materialPositions: number[]
+  fromTarget: string
+}
+
 interface Query {
   oMaterial : Order_Reason
 }
@@ -39,4 +44,14 @@ interface Cebe {
 interface Order_Reason {
   Reason: string
   Description: string
+}
+
+export interface ItemEquipment {
+  EquipmentB: string | null
+  InstalationDate: Date | null
+  DescriptionE: string | null
+  Emplaz: string | null
+  Location: string | null
+  DescriptionL: string | null
+  Partner: string | null
 }

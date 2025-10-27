@@ -1,4 +1,4 @@
-<mvc:View controllerName="contractmanagement.contractmanagement.controller.Main"
+<mvc:View xmlns:rowmodes="sap.ui.table.rowmodes" controllerName="contractmanagement.contractmanagement.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:form="sap.ui.layout.form"
@@ -10,7 +10,8 @@
     <f:DynamicPage 
         showFooter="true" 
         headerExpanded="true" 
-        headerPinned="true">
+        headerPinned="true"
+        fitContent="true">
         <f:title>
             <uxap:ObjectPageDynamicHeaderTitle >
                 <uxap:heading>
@@ -18,234 +19,245 @@
                 </uxap:heading>
             </uxap:ObjectPageDynamicHeaderTitle>
         </f:title>
-        <f:header>
-            <uxap:ObjectPageDynamicHeaderContent pinnable="false" >
-                <Text text="" />
-            </uxap:ObjectPageDynamicHeaderContent>
-        </f:header>
         <f:content>
-            <VBox>
-                <Title text="{i18n>createOffer}" />
+            <FlexBox direction="Column" height="100%" gap="1rem">
+                <Panel expandable="true" expanded="true" headerText="{i18n>createOffer}" stickyHeader="true" >
+                    <layoutData>
+                        <FlexItemData growFactor="0" shrinkFactor="0"/>
+                    </layoutData>
+                    <form:SimpleForm 
+                        editable="true"
+                        layout="ColumnLayout"
+                        labelSpanXL="2"
+                        labelSpanL="3"
+                        labelSpanM="3"
+                        labelSpanS="12"
+                        emptySpanXL="2"
+                        emptySpanL="1"
+                        emptySpanM="1"
+                        emptySpanS="0"
+                        columnsXL="2"
+                        columnsL="2"
+                        columnsM="2" >
+                        <form:content>
+                            <!-- <core:Title text="{i18n>createOffer}"/> -->
+                            <Label 
+                                text="{i18n>offerType}" 
+                                labelFor="iptOfferType"
+                                required="true" 
+                            />
+                            <Input 
+                                id="iptOfferType" 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oOfferType/Auart} {mContractManagement>/header/oOfferType/Bezei}" 
+                                valueHelpRequest="onOpenPopUpOfferType"
+                            />
+                            <Label text="{i18n>salesOrganization}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oSalesOrganization/Vkorg} {mContractManagement>/header/oSalesOrganization/Vtext}" 
+                                valueHelpRequest="onOpenPopUpSalesOrganization"
+                            />
+                            <Label text="{i18n>channel}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oChannel/Vtweg} {mContractManagement>/header/oChannel/Vtext}" 
+                                valueHelpRequest="onOpenPopUpChannel"
+                            />
+                            <Label text="{i18n>sector}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oSector/Spart} {mContractManagement>/header/oSector/Vtext}" 
+                                valueHelpRequest="onOpenPopUpSector"
+                            />
+                            <Label text="{i18n>salesOffice}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oSalesOffice/Office} {mContractManagement>/header/oSalesOffice/Description}" 
+                                valueHelpRequest="onOpenPopUpSalesOffice"
+                            />
+                            <Label text="{i18n>salesGroup}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oSalesGroup/Group} {mContractManagement>/header/oSalesGroup/Description}" 
+                                valueHelpRequest="onOpenPopUpSalesGroup"
+                            />
+                            <Label text="{i18n>customerOrder}" />
+                            <Input value="{mContractManagement>/header/customerOrder}" maxLength="35"/>
 
-                <form:SimpleForm 
-                    editable="true"
-                    layout="ResponsiveGridLayout"
-                    labelSpanXL="2"
-                    labelSpanL="2"
-                    labelSpanM="3"
-                    labelSpanS="12"
-                    adjustLabelSpan="false"
-                    emptySpanXL="2"
-                    emptySpanL="1"
-                    emptySpanM="1"
-                    emptySpanS="0"
-                    columnsXL="2"
-                    columnsL="1"
-                    columnsM="1"
-                    singleContainerFullSize="false" >
-                    <form:content>
-                        <core:Title/>
-                        <Label 
-                            text="{i18n>offerType}" 
-                            labelFor="iptOfferType"
-                            required="true" 
-                        />
-                        <Input 
-                            id="iptOfferType" 
-                            showValueHelp="true" 
-                            value="{mContractManagement>/header/oOfferType/Auart} {mContractManagement>/header/oOfferType/Bezei}" 
-                            valueHelpRequest="onOpenPopUpOfferType"
-                        />
-                        <Label text="{i18n>salesOrganization}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oSalesOrganization/Vkorg} {mContractManagement>/header/oSalesOrganization/Vtext}" 
-                            valueHelpRequest="onOpenPopUpSalesOrganization"
-                        />
-                        <Label text="{i18n>channel}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oChannel/Vtweg} {mContractManagement>/header/oChannel/Vtext}" 
-                            valueHelpRequest="onOpenPopUpChannel"
-                        />
-                        <Label text="{i18n>sector}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oSector/Spart} {mContractManagement>/header/oSector/Vtext}" 
-                            valueHelpRequest="onOpenPopUpSector"
-                        />
-                        <Label text="{i18n>salesOffice}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oSalesOffice/Office} {mContractManagement>/header/oSalesOffice/Description}" 
-                            valueHelpRequest="onOpenPopUpSalesOffice"
-                        />
-                        <Label text="{i18n>salesGroup}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oSalesGroup/Group} {mContractManagement>/header/oSalesGroup/Description}" 
-                            valueHelpRequest="onOpenPopUpSalesGroup"
-                        />
-                        <Label text="{i18n>customerOrder}" />
-                        <Input value="{mContractManagement>/header/customerOrder}" maxLength="35"/>
-
-                        <core:Title/>
-                        <Label text="{i18n>orderDate}" />
-                        <DatePicker dateValue="{mContractManagement>/header/orderDate}"/>
-                        <Label text="{i18n>requester}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oRequester/CustomerCode} {mContractManagement>/header/oRequester/Name1}" 
-                            valueHelpRequest="onOpenPopUpRequester"
-                        />
-                        <Label text="{i18n>department}" />
-                        <Input enabled="false" value="{mContractManagement>/header/department}"/>
-                        <Label text="{i18n>paymentTerms}" />
-                        <Input enabled="false" value="{mContractManagement>/header/paymentTerms}"/>
-                        <Label text="{i18n>validFromUntil}" />
-                        <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
-                        <Label text="{i18n>currency}" />
-                        <Input 
-                            showValueHelp="true"
-                            valueHelpOnly="true" 
-                            value="{mContractManagement>/header/oCurrency/CurrencyCode} {mContractManagement>/header/oCurrency/CurrencyName}" 
-                            valueHelpRequest="onOpenPopUpCurrency"
-                        />
-
-                    </form:content>
-                </form:SimpleForm>
-
-                <t:Table 
-                    id="tblMaterial"
-                    alternateRowColors="true"
-                    busyIndicatorDelay="0"
-                    enableColumnFreeze="true"
-                    enableSelectAll="true"
-                    enableColumnReordering="true"
-                    showNoData="true"
-                    selectionBehavior="RowSelector"
-                    rowSelectionChange="onSelectRow"
-                    rows="{mContractManagement>/arrMaterial}"
-                    selectionMode="MultiToggle"
-                    rowActionCount="1">
-                    <t:extension>
-                        <OverflowToolbar>
-                            <Title text="{i18n>material}s ({= ${mContractManagement>/arrMaterial}.length })"/>
-                            <ToolbarSpacer />
-                            <Button text="{i18n>assignEquipment}" press="onAssignEquipment" type="Transparent" icon="sap-icon://add-product"/>
-                            <Button text="{i18n>addMaterial}" press="addMaterial" type="Emphasized" icon="sap-icon://add" />
-                            <Button press="onDeleteRow" type="Reject" icon="sap-icon://delete" />
-                        </OverflowToolbar>                        
-                    </t:extension>
-                    <t:columns >
-                        <t:Column width="20rem" hAlign="Center" >
-                            <Text text="{i18n>material}" />
-                            <t:template >
-                               <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpMaterial"
-                                    value="{
-                                        parts:[
-                                            {path:'mContractManagement>oMaterial/Material'},
-                                            {path: 'mContractManagement>oMaterial/Description'}
-                                        ],
-                                        formatter: '.formatter.materialDescription'                                         
-                                    }" 
-                                />
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="13rem">
-                            <Text text="{i18n>cebe}"/>
-                            <t:template >
-                                <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpCebe"
-                                    value="{path:'mContractManagement>oCebe/Profit'}" 
-                                />
-                            </t:template>
-                        </t:Column>                       
-                        <t:Column width="10rem">
-                            <Text text="{i18n>center}"/>
-                            <t:template >
-                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/PlantCodeSet'}" showSecondaryValues="true" forceSelection="false" selectedKey="{path:'mContractManagement>selectedKeyCenter'}" >
-                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Plant}" text="{ZSD_CATALOGOS_SRV>Plant}"  additionalText="{ZSD_CATALOGOS_SRV>Description}" />
-                                </Select>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="20rem">
-                            <Text text="{i18n>reasonOrder}"/>
-                            <t:template >
-                                <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpOrderReason"
-                                    value="{path:'mContractManagement>oOrderReason/Reason'} - {path:'mContractManagement>oOrderReason/Description'}" 
-                                />
-                            </t:template>
-                        </t:Column>                       
-                        <t:Column width="8rem">
-                            <Text text="{i18n>netValue}"/>
-                            <t:template >
-                                <Input value="{path: 'mContractManagement>netValue'}"/>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="13rem">
-                            <Text text="{i18n>workingHours}"/>
-                            <t:template >
-                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem3Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedWorkingHours'}" >
-                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
-                                </Select>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="10rem">
-                            <Text text="{i18n>customerGroup1}"/>
-                            <t:template >
-                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem1Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup1'}" >
-                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
-                                </Select>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="10rem">
-                            <Text text="{i18n>customerGroup3}"/>
-                            <t:template >                                
-                                <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem2Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup3'}" >
-                                    <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
-                                </Select>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="6rem">
-                            <Text text="{i18n>paymentMethod}"/>
-                            <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="15rem">
-                            <Text text="{i18n>validFromUntil}"/>
-                            <t:template >
-                               <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="6rem">
-                            <Text text="{i18n>viewEquipment}"/>
-                            <t:template >
-                                <Button enabled="{mContractManagement>hasEquipment}" icon="sap-icon://show" />
-                            </t:template>
-                        </t:Column>
-                        <t:Column width="6rem">
-                            <Text text="{i18n>cup}"/>
-                            <t:template >
-                                <Button enabled="{mContractManagement>hasEquipment}"  icon="sap-icon://show" />
-                            </t:template>
-                        </t:Column>
-                    </t:columns>
-                    <t:noData>
-                        <IllustratedMessage
-                            illustrationType="sapIllus-SimpleEmptyList"
-                            enableVerticalResponsiveness="true"
-                            title="{i18n>thereAreNotEntriesYet}"
-                            description="{i18n>thereAreNotEntriesYetDesc}"/>
-                    </t:noData>
-                </t:Table>
-            </VBox>            
+                            <!-- <core:Title/> -->
+                            <Label text="{i18n>orderDate}" />
+                            <DatePicker dateValue="{mContractManagement>/header/orderDate}"/>
+                            <Label text="{i18n>requester}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oRequester/CustomerCode} {mContractManagement>/header/oRequester/Name1}" 
+                                valueHelpRequest="onOpenPopUpRequester"
+                            />
+                            <Label text="{i18n>department}" />
+                            <Input enabled="false" value="{mContractManagement>/header/department}"/>
+                            <Label text="{i18n>paymentTerms}" />
+                            <Input enabled="false" value="{mContractManagement>/header/paymentTerms}"/>
+                            <Label text="{i18n>validFromUntil}" />
+                            <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
+                            <Label text="{i18n>currency}" />
+                            <Input 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oCurrency/CurrencyCode} {mContractManagement>/header/oCurrency/CurrencyName}" 
+                                valueHelpRequest="onOpenPopUpCurrency"
+                            />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+                <FlexBox
+                    fitContainer="true"
+                    renderType="Bare"
+                    direction="Column"
+                    height="100%">
+                    <Panel expanded="true" expandable="true" stickyHeader="true" height="100%" >
+                        <headerToolbar>
+                            <OverflowToolbar active="true" >
+                                <Title text="{i18n>materials} ({= ${mContractManagement>/arrMaterial}.length })"/>
+                                <ToolbarSpacer />
+                                <Button text="{i18n>addMaterial}" press="addMaterial" type="Emphasized" icon="sap-icon://add" />
+                                <ToolbarSeparator />
+                                <Button text="{i18n>assignEquipment}" press="onAssignEquipment" type="Attention" icon="sap-icon://add-product"/>
+                                <Button press="onDeleteRow" type="Reject" icon="sap-icon://delete" />
+                            </OverflowToolbar> 
+                        </headerToolbar>
+                        <content>
+                            <t:Table 
+                                id="tblMaterial"
+                                alternateRowColors="true"
+                                busyIndicatorDelay="0"
+                                enableColumnFreeze="true"
+                                enableSelectAll="true"
+                                enableColumnReordering="true"
+                                showNoData="true"
+                                selectionBehavior="RowSelector"
+                                rowSelectionChange="onSelectRow"
+                                rows="{mContractManagement>/arrMaterial}"
+                                selectionMode="MultiToggle">
+                                <t:layoutData>
+                                    <FlexItemData growFactor="1" shrinkFactor="1" />
+                                </t:layoutData>
+                                <t:rowMode>
+                                    <rowmodes:Auto />
+                                </t:rowMode>
+                                <t:columns >
+                                    <t:Column width="20rem" hAlign="Center" >
+                                        <Text text="{i18n>material}" />
+                                        <t:template >
+                                        <Input showValueHelp="true" valueHelpOnly="true"  valueHelpRequest="onOpenPopUpMaterial"
+                                                value="{
+                                                    parts:[
+                                                        {path:'mContractManagement>oMaterial/Material'},
+                                                        {path: 'mContractManagement>oMaterial/Description'}
+                                                    ],
+                                                    formatter: '.formatter.materialDescription'                                         
+                                                }" 
+                                            />
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="13rem">
+                                        <Text text="{i18n>cebe}"/>
+                                        <t:template >
+                                            <Input showValueHelp="true" valueHelpOnly="true" valueHelpRequest="onOpenPopUpCebe"
+                                                value="{path:'mContractManagement>oCebe/Profit'}" 
+                                            />
+                                        </t:template>
+                                    </t:Column>                       
+                                    <t:Column width="10rem">
+                                        <Text text="{i18n>center}"/>
+                                        <t:template >
+                                            <Select items="{ZSD_CATALOGOS_SRV>/PlantCodeSet}" showSecondaryValues="true" forceSelection="false" selectedKey="{path:'mContractManagement>selectedKeyCenter'}" >
+                                                <core:ListItem key="{ZSD_CATALOGOS_SRV>Plant}" additionalText="{ZSD_CATALOGOS_SRV>Plant}" text ="{ZSD_CATALOGOS_SRV>Description}" />
+                                            </Select>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="20rem">
+                                        <Text text="{i18n>reasonOrder}"/>
+                                        <t:template >
+                                            <Input showValueHelp="true" valueHelpOnly="true"  valueHelpRequest="onOpenPopUpOrderReason"
+                                                value="{path:'mContractManagement>oOrderReason/Reason'} - {path:'mContractManagement>oOrderReason/Description'}" 
+                                            />
+                                        </t:template>
+                                    </t:Column>                       
+                                    <t:Column width="8rem">
+                                        <Text text="{i18n>netValue}"/>
+                                        <t:template >
+                                            <Input value="{path: 'mContractManagement>netValue'}"/>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="13rem">
+                                        <Text text="{i18n>workingHours}"/>
+                                        <t:template >
+                                            <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem3Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedWorkingHours'}" >
+                                                <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                            </Select>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="10rem">
+                                        <Text text="{i18n>customerGroup1}"/>
+                                        <t:template >
+                                            <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem1Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup1'}" >
+                                                <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                            </Select>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="10rem">
+                                        <Text text="{i18n>customerGroup3}"/>
+                                        <t:template >                                
+                                            <Select items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem2Set'}"  forceSelection="false"  selectedKey="{path:'mContractManagement>selectedCustomerGroup3'}" >
+                                                <core:ListItem key="{ZSD_CATALOGOS_SRV>Name}" text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+                                            </Select>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="6rem">
+                                        <Text text="{i18n>paymentMethod}"/>
+                                        <t:template >
+                                            <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="15rem">
+                                        <Text text="{i18n>validFromUntil}"/>
+                                        <t:template >
+                                        <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="6rem" hAlign="Center">
+                                        <Text text="{i18n>viewEquipment}"/>
+                                        <t:template >
+                                            <Button enabled="{mContractManagement>hasEquipment}" icon="sap-icon://product" />
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="6rem" hAlign="Center">
+                                        <Text text="{i18n>cup}"/>
+                                        <t:template >
+                                            <Button enabled="{mContractManagement>hasEquipment}"  icon="sap-icon://machine" />
+                                        </t:template>
+                                    </t:Column>
+                                </t:columns>
+                                <t:noData>
+                                    <IllustratedMessage
+                                        illustrationType="sapIllus-SimpleEmptyList"
+                                        enableVerticalResponsiveness="true"
+                                        title="{i18n>thereAreNotEntriesYet}"
+                                        description="{i18n>thereAreNotEntriesYetDesc}"/>
+                                </t:noData>
+                            </t:Table>
+                        </content>
+                    </Panel>
+                </FlexBox>
+            </FlexBox>            
         </f:content>
         <f:footer>
             <OverflowToolbar>
@@ -253,7 +265,7 @@
                 <Button 
                     id="btnNext" 
                     type="Accept" 
-                    text="{i18n>next}" 
+                    text="{i18n>save}" 
                     press="onOpenListContract"
                     icon="sap-icon://open-command-field" />
                 <Button 

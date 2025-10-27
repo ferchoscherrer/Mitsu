@@ -1,4 +1,4 @@
-<mvc:View controllerName="contractmanagement.contractmanagement.controller.Equipment."
+<mvc:View xmlns:rowmodes="sap.ui.table.rowmodes" controllerName="contractmanagement.contractmanagement.controller.Equipment."
     displayBlock="true"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -19,81 +19,77 @@
                 </uxap:heading>
             </uxap:ObjectPageDynamicHeaderTitle>
         </f:title>
-        <f:header>
-            <uxap:ObjectPageDynamicHeaderContent pinnable="false" >
-                <Text text="" />
-            </uxap:ObjectPageDynamicHeaderContent>
-        </f:header>
         <f:content>
-            <VBox>                
-                <t:Table 
-                    alternateRowColors="true"
-                    busyIndicatorDelay="0"
-                    enableColumnFreeze="true"
-                    enableSelectAll="true"
-                    enableColumnReordering="true"
-                    showNoData="true"
-                    selectionBehavior="RowOnly"
-                    rowSelectionChange="onSelectRow"
-                    rows="{mContractManagement>/arrEquipment}"
-                    selectionMode="MultiToggle"
-                    rowActionCount="1">
-                    <t:extension>
-                        <OverflowToolbar>
-                            <Title text="{i18n>equipment}s ({= ${mContractManagement>/arrEquipment}.length })"/>
-                            <ToolbarSpacer />
-                            <Button press="onDeleteEquipment" type="Reject" icon="sap-icon://delete" />
-                        </OverflowToolbar>                        
-                    </t:extension>
-                    <t:columns >
-                        <t:Column hAlign="Center" >
-                            <Text text="{i18n>equipment}" />
-                            <t:template >
-                               <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpEquipment"
-                                    value="{path:'mContractManagement>oEquipment/EquipmentB'}" 
-                                />
-                            </t:template>
-                        </t:Column>
-                        <t:Column >
-                            <Text text="{i18n>Denomination}"/>
-                            <t:template >
-                                <Text text="{path:'mContractManagement>DescriptionE'}" />
-                            </t:template>
-                        </t:Column>                       
-                        <t:Column >
-                            <Text text="{i18n>technicalLocation}"/>
-                            <t:template >
-                                <Text text="{path:'mContractManagement>Location'}" />
-                            </t:template>
-                        </t:Column>
-                        <t:Column >
-                            <Text text="{i18n>denomitaionTechnicalLocation}"/>
-                            <t:template >
-                                <Text text="{path:'mContractManagement>DescriptionL'}" />
-                            </t:template>
-                        </t:Column>
-                        <t:Column >
-                            <Text text="{i18n>installationDate}"/>
-                            <t:template >
-                               <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
-                            </t:template>
-                        </t:Column>
-                        <t:Column visible="{mContractManagement>/isEquipmentCup}" >
-                            <Text text="{i18n>CUP}"/>
-                            <t:template >
-                               <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
-                            </t:template>
-                        </t:Column>
-                    </t:columns>
-                    <t:noData>
-                        <IllustratedMessage
-                            illustrationType="sapIllus-SimpleEmptyList"
-                            enableVerticalResponsiveness="true"
-                            title="{i18n>thereAreNotEntriesYet}"
-                            description="{i18n>thereAreNotEntriesYetDesc}"/>
-                    </t:noData>
-                </t:Table>
-            </VBox>
+            <t:Table 
+                alternateRowColors="true"
+                busyIndicatorDelay="0"
+                enableColumnFreeze="true"
+                enableSelectAll="true"
+                enableColumnReordering="true"
+                showNoData="true"
+                selectionBehavior="RowSelector"
+                rowSelectionChange="onSelectRow"
+                rows="{mContractManagement>/arrEquipment}"
+                selectionMode="MultiToggle">
+                <t:extension>
+                    <OverflowToolbar>
+                        <Title text="{i18n>equipment}s ({= ${mContractManagement>/arrEquipment}.length })"/>
+                        <ToolbarSpacer />
+                        <Button text="{i18n>addEquipment}" press="onAddEquipment" type="Emphasized" icon="sap-icon://add" />
+                        <Button press="onDeleteEquipment" type="Reject" icon="sap-icon://delete" />
+                    </OverflowToolbar>                        
+                </t:extension>
+                <t:rowMode>
+                    <rowmodes:Auto />
+                </t:rowMode>
+                <t:columns >
+                    <t:Column hAlign="Center" >
+                        <Text text="{i18n>equipment}" />
+                        <t:template >
+                            <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpEquipment"
+                                value="{path:'mContractManagement>oEquipment/EquipmentB'}" 
+                            />
+                        </t:template>
+                    </t:Column>
+                    <t:Column >
+                        <Text text="{i18n>Denomination}"/>
+                        <t:template >
+                            <Text text="{path:'mContractManagement>DescriptionE'}" />
+                        </t:template>
+                    </t:Column>                       
+                    <t:Column >
+                        <Text text="{i18n>technicalLocation}"/>
+                        <t:template >
+                            <Text text="{path:'mContractManagement>Location'}" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column >
+                        <Text text="{i18n>denomitaionTechnicalLocation}"/>
+                        <t:template >
+                            <Text text="{path:'mContractManagement>DescriptionL'}" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column >
+                        <Text text="{i18n>installationDate}"/>
+                        <t:template >
+                            <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column visible="{mContractManagement>/isEquipmentCup}" >
+                        <Text text="{i18n>CUP}"/>
+                        <t:template >
+                            <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
+                        </t:template>
+                    </t:Column>
+                </t:columns>
+                <t:noData>
+                    <IllustratedMessage
+                        illustrationType="sapIllus-SimpleEmptyList"
+                        enableVerticalResponsiveness="true"
+                        title="{i18n>thereAreNotEntriesYet}"
+                        description="{i18n>thereAreNotEntriesYetDesc}"/>
+                </t:noData>
+            </t:Table>
         </f:content>
         <f:footer>
             <OverflowToolbar>
@@ -102,7 +98,7 @@
                     id="btnNext" 
                     type="Accept" 
                     text="{i18n>accept}" 
-                    press="onOpenListContract"
+                    press="onNavBack"
                     icon="sap-icon://cart-approval" />
                 <Button 
                     type="Reject" 

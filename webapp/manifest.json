@@ -122,11 +122,6 @@
           "target": [
             "TargetMain"
           ]
-        },
-        {
-          "name": "RouteEquipment",
-          "pattern": "equipment/{?query}",
-          "target":["TargetEquipment"]
         }
       ],
       "targets": {
