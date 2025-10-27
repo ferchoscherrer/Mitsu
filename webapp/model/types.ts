@@ -7,6 +7,7 @@ export interface Items {
   selectedWorkingHours : string | null
   selectedCustomerGroup1 : string | null
   selectedCustomerGroup3 : string | null
+  hasEquipment : boolean
 }
 
 export interface Customer {

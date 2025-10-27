@@ -15,5 +15,6 @@
         "oCurrency": null
     },
     "arrMaterial": [],
-    "arrEquipment": []
+    "arrEquipment": [],
+    "isEquipmentCup": true
 }

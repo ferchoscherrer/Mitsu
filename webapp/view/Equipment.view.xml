@@ -78,6 +78,12 @@
                                <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
                             </t:template>
                         </t:Column>
+                        <t:Column visible="{mContractManagement>/isEquipmentCup}" >
+                            <Text text="{i18n>CUP}"/>
+                            <t:template >
+                               <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
+                            </t:template>
+                        </t:Column>
                     </t:columns>
                     <t:noData>
                         <IllustratedMessage

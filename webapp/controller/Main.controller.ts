@@ -336,7 +336,8 @@ export default class Main extends Controller {
             netValue: 0,
             selectedWorkingHours: null,
             selectedCustomerGroup1: null,
-            selectedCustomerGroup3: null
+            selectedCustomerGroup3: null,
+            hasEquipment: false
         }
 
         arrMaterial.push(oMaterial);
@@ -484,10 +485,8 @@ export default class Main extends Controller {
     public onAssignEquipment() { 
         BusyIndicator.show(0);
         try {
-            const oTable = this.byId("tblMaterial") as Table;
             const oRequester : Customer = this.oContractManagement.getProperty(`/header/oRequester`);
 
-            // if (this.arrIndexSelectRowMaterial.length === 0) throw new Error(this.oI18n.getText("errorAddEquipment") ?? '');
             this._onValidateData();
             
             this.oRouter.navTo("RouteEquipment",{

@@ -227,13 +227,13 @@
                         <t:Column width="6rem">
                             <Text text="{i18n>viewEquipment}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Button enabled="{mContractManagement>hasEquipment}" icon="sap-icon://show" />
                             </t:template>
                         </t:Column>
                         <t:Column width="6rem">
                             <Text text="{i18n>cup}"/>
                             <t:template >
-                                <Text text="{path: 'mContractManagement>nameRecipient'}"/>
+                                <Button enabled="{mContractManagement>hasEquipment}"  icon="sap-icon://show" />
                             </t:template>
                         </t:Column>
                     </t:columns>
