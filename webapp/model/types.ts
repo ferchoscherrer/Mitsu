@@ -8,6 +8,9 @@ export interface Items {
   selectedCustomerGroup1 : string | null
   selectedCustomerGroup3 : string | null
   hasEquipment : boolean
+  validFromDate: string | null
+  validUntilDate : string | null
+  arrEquipment : ItemEquipment[]
 }
 
 export interface Customer {
@@ -54,4 +57,5 @@ export interface ItemEquipment {
   Location: string | null
   DescriptionL: string | null
   Partner: string | null
+  cup?: number
 }

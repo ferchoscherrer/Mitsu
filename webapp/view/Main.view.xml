@@ -157,14 +157,14 @@
                                         <Text text="{i18n>material}" />
                                         <t:template >
                                         <Input showValueHelp="true" valueHelpOnly="true"  valueHelpRequest="onOpenPopUpMaterial"
-                                                value="{
-                                                    parts:[
-                                                        {path:'mContractManagement>oMaterial/Material'},
-                                                        {path: 'mContractManagement>oMaterial/Description'}
-                                                    ],
-                                                    formatter: '.formatter.materialDescription'                                         
-                                                }" 
-                                            />
+                                            value="{path:'mContractManagement>oMaterial/Material'}" 
+                                        />
+                                        </t:template>
+                                    </t:Column>
+                                    <t:Column width="20rem">
+                                        <Text text="{i18n>denomination}"/>
+                                        <t:template >
+                                            <Text text="{path: 'mContractManagement>oMaterial/Description'}" />
                                         </t:template>
                                     </t:Column>
                                     <t:Column width="13rem">
@@ -174,7 +174,7 @@
                                                 value="{path:'mContractManagement>oCebe/Profit'}" 
                                             />
                                         </t:template>
-                                    </t:Column>                       
+                                    </t:Column>
                                     <t:Column width="10rem">
                                         <Text text="{i18n>center}"/>
                                         <t:template >
@@ -230,19 +230,19 @@
                                     <t:Column width="15rem">
                                         <Text text="{i18n>validFromUntil}"/>
                                         <t:template >
-                                        <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
+                                        <DateRangeSelection dateValue="{mContractManagement>validFromDate}" secondDateValue="{mContractManagement>validUntilDate}"/>
                                         </t:template>
                                     </t:Column>
                                     <t:Column width="6rem" hAlign="Center">
                                         <Text text="{i18n>viewEquipment}"/>
                                         <t:template >
-                                            <Button enabled="{mContractManagement>hasEquipment}" icon="sap-icon://product" />
+                                            <Button enabled="{= ${mContractManagement>arrEquipment}.length > 0 }"  press="showEquipment" icon="sap-icon://product" />
                                         </t:template>
                                     </t:Column>
                                     <t:Column width="6rem" hAlign="Center">
                                         <Text text="{i18n>cup}"/>
                                         <t:template >
-                                            <Button enabled="{mContractManagement>hasEquipment}"  icon="sap-icon://machine" />
+                                            <Button enabled="{= ${mContractManagement>arrEquipment}.length > 0 }" press="showEquipment($event,true)"  icon="sap-icon://machine" />
                                         </t:template>
                                     </t:Column>
                                 </t:columns>
@@ -267,7 +267,7 @@
                     type="Accept" 
                     text="{i18n>save}" 
                     press="onOpenListContract"
-                    icon="sap-icon://open-command-field" />
+                    icon="sap-icon://save" />
                 <Button 
                     type="Reject" 
                     text="{i18n>clear}" 

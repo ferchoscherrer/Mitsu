@@ -10,7 +10,9 @@
 		items= "{path : 'ZSD_CATALOGOS_SRV>/CustomerSet'}"
 		contentHeight= "30%"
 		contentWidth="30%"
-		resizable="true">
+		resizable="true"
+		searchable="false"
+		>
 		<ColumnListItem>
 			<cells>
                 <Text text="{ZSD_CATALOGOS_SRV>CustomerCode}"/>

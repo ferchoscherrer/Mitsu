@@ -17,10 +17,15 @@
                 <uxap:heading>
                     <Title text="{i18n>equipmentAssig}"/>
                 </uxap:heading>
+                <uxap:navigationActions>
+                    <Button press="onNavBack" type="Emphasized" icon="sap-icon://decline" />
+                </uxap:navigationActions>
             </uxap:ObjectPageDynamicHeaderTitle>
         </f:title>
+            
         <f:content>
             <t:Table 
+                id="tblEquipment"
                 alternateRowColors="true"
                 busyIndicatorDelay="0"
                 enableColumnFreeze="true"
@@ -46,9 +51,7 @@
                     <t:Column hAlign="Center" >
                         <Text text="{i18n>equipment}" />
                         <t:template >
-                            <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpEquipment"
-                                value="{path:'mContractManagement>oEquipment/EquipmentB'}" 
-                            />
+                            <Input showValueHelp="true"  valueHelpRequest="onOpenPopUpEquipment" value="{path:'mContractManagement>EquipmentB'}" />
                         </t:template>
                     </t:Column>
                     <t:Column >
@@ -78,7 +81,13 @@
                     <t:Column visible="{mContractManagement>/isEquipmentCup}" >
                         <Text text="{i18n>CUP}"/>
                         <t:template >
-                            <DatePicker editable="false" dateValue="{mContractManagement>InstalationDate}" />
+                            <Button press="onOpenPopUpCup" type="Accept" 
+                                text="{
+                                    parts: ['mContractManagement>cup'], 
+                                    formatter: '.formatter.formatAmmount'
+                                }"
+                            />
+
                         </t:template>
                     </t:Column>
                 </t:columns>
@@ -98,13 +107,13 @@
                     id="btnNext" 
                     type="Accept" 
                     text="{i18n>accept}" 
-                    press="onNavBack"
+                    press="onSaveEquipment"
                     icon="sap-icon://cart-approval" />
                 <Button 
                     type="Reject" 
                     text="{i18n>cancel}" 
                     icon="sap-icon://clear-filter" 
-                    press="onClearFilter" />
+                    press="onClear" />
 			</OverflowToolbar>
         </f:footer>
     

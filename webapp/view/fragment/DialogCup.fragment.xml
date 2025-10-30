@@ -1,0 +1,75 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+    xmlns:t="sap.ui.table" 
+	xmlns:rowmodes="sap.ui.table.rowmodes"
+	>
+    <Dialog resizable="true" draggable="true">
+        <customHeader>            
+            <Toolbar>
+                <Title text="{i18n>cupService}" />
+                <ToolbarSpacer />
+                <Button icon="sap-icon://decline" type="Default" press="onCloseWorkForce" />
+            </Toolbar>
+        </customHeader>
+        <content>
+            <t:Table  
+				alternateRowColors="true"
+				busyIndicatorDelay="0"
+				enableColumnFreeze="true"
+				enableSelectAll="true"
+				enableColumnReordering="true"
+				showNoData="true"
+				selectionBehavior="RowSelector"
+				rowSelectionChange="onSelectRow"
+				rows="{mContractManagement>/arrWorkForce}"
+				selectionMode="None">
+                <t:rowMode>
+                    <rowmodes:Auto />
+                </t:rowMode>
+                <t:columns>
+                    <t:Column>
+                        <Label text="Rubro" />
+                        <t:template>
+                            <Text text="{mContractManagement>item}" />
+                        </t:template>
+                    </t:Column>
+
+                    <t:Column hAlign="Center">
+                        <Label text="Anual" />
+                        <t:template>
+                            <Text text="{mContractManagement>annual}" />
+                        </t:template>
+                    </t:Column>
+
+                    <t:Column hAlign="Center">
+                        <Label text="Fecha" />
+                        <t:template>
+                            <Text text="{mContractManagement>date}" />
+                        </t:template>
+                    </t:Column>
+
+                    <t:Column hAlign="Center">
+                        <Label text="Mensual" />
+                        <t:template>
+                            <Input submit="_onCalculateTotalWorkForce" editable="{= ${mContractManagement>key} !== '06'}"
+                                value="{
+                                    parts: ['mContractManagement>monthly'], 
+                                    formatter: '.formatter.formatAmmount'
+                                }"                                
+                            />
+                        </t:template>
+                    </t:Column>
+                </t:columns>
+            </t:Table>
+        </content>
+
+        <beginButton>
+            <Button text="Guardar" type="Success" press="onSaveWorkForce" />
+        </beginButton>
+
+        <endButton>
+            <Button text="Cancelar" type="Reject" press="onCloseWorkForce" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

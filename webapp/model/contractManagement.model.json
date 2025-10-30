@@ -16,5 +16,9 @@
     },
     "arrMaterial": [],
     "arrEquipment": [],
-    "isEquipmentCup": true
+    "oConfig" : {
+        "isEdiatbleEquipment": true
+    },
+    "isEquipmentCup": false,
+    "arrWorkForce": []
 }

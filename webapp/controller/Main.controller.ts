@@ -13,11 +13,12 @@ import FilterOperator from "sap/ui/model/FilterOperator";
 import { TableSelectDialog$ConfirmEvent, TableSelectDialog$SearchEvent } from "sap/m/TableSelectDialog";
 import { Customer, Items } from "../model/types";
 import Input, { Input$ValueHelpRequestEvent } from "sap/m/Input";
-import formatter from "../model/formatter";
+import formatter from "contractmanagement/contractmanagement/model/formatter";
 import Table, { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
 import MessageBox from "sap/m/MessageBox";
 import BusyIndicator from "sap/ui/core/BusyIndicator";
 import busydialog from "sap/ca/ui/utils/busydialog";
+import Button, { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace contractmanagement.contractmanagement.controller
@@ -328,6 +329,7 @@ export default class Main extends Controller {
 
     public addMaterial(){
         let arrMaterial : Items[] = this.oContractManagement.getProperty(`/arrMaterial`);
+        const oHeader = this.oContractManagement.getProperty(`/header`);
         const oMaterial : Items = {
             oMaterial: null,
             oCebe: null,
@@ -337,7 +339,10 @@ export default class Main extends Controller {
             selectedWorkingHours: null,
             selectedCustomerGroup1: null,
             selectedCustomerGroup3: null,
-            hasEquipment: false
+            hasEquipment: false,
+            validFromDate: oHeader.validFromDate,
+            validUntilDate : oHeader.validUntilDate,
+            arrEquipment : []
         }
 
         arrMaterial.push(oMaterial);
@@ -486,16 +491,19 @@ export default class Main extends Controller {
         BusyIndicator.show(0);
         try {
             this._onValidateData();
-
-            this.oRouter.getTargets()?.display("TargetEquipment", {
-                materialPositions: this.arrIndexSelectRowMaterial,
-                fromTarget: "TargetMain"
-            });
+            this._onEquipment();
         } catch (oError: any) {
             MessageBox.error(oError.message);
         } finally {
             BusyIndicator.hide()
         }
+    }
+
+    private _onEquipment() {        
+        this.oRouter.getTargets()?.display("TargetEquipment", {
+            materialPositions: this.arrIndexSelectRowMaterial,
+            fromTarget: "TargetMain"
+        });
     }
 
     private _onValidateData(){        
@@ -505,5 +513,20 @@ export default class Main extends Controller {
 
         if (!oRequester) throw new Error(this.oI18n.getText('errorCustomer'))
     }
-    
+
+    public showEquipment(oEvent : Button$PressEvent, _toCup=false) {
+        const oSource : Button = oEvent.getSource();
+        const oBinding = oSource.getBindingContext("mContractManagement") as ContextV2;
+        const sPath : string = oBinding.getPath();
+        const oMaterial : Items = this.oContractManagement.getProperty(sPath);
+
+        for(const oEquipment of oMaterial.arrEquipment){
+            if (_toCup && !oEquipment.cup) oEquipment.cup = 0;
+        }
+
+        this.oContractManagement.setProperty('/arrEquipment', oMaterial.arrEquipment);
+        this.oContractManagement.setProperty('/isEquipmentCup', _toCup);
+
+        this._onEquipment();
+    }
 }
