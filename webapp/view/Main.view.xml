@@ -266,13 +266,13 @@
                     id="btnNext" 
                     type="Accept" 
                     text="{i18n>save}" 
-                    press="onOpenListContract"
+                    press="onSave"
                     icon="sap-icon://save" />
                 <Button 
                     type="Reject" 
                     text="{i18n>clear}" 
                     icon="sap-icon://clear-filter" 
-                    press="onClearFilter" />
+                    press="onClear" />
 			</OverflowToolbar>
         </f:footer>
     </f:DynamicPage>

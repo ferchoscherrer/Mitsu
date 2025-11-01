@@ -6,7 +6,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import ResourceModel from "sap/ui/model/resource/ResourceModel";
 import ODataModel from "sap/ui/model/odata/v2/ODataModel";
 import ContextV2 from "sap/ui/model/odata/v2/Context";
-import { Customer, DetailRouteArg, ItemEquipment, RoutingEquipment } from "../model/types";
+import { Customer, DetailRouteArg, ItemEquipment, RoutingEquipment, WorkForce, WorkForce_Service } from "../model/types";
 import { Route$MatchedEvent } from "sap/ui/core/routing/Route";
 import Input, { Input$ValueHelpRequestEvent } from "sap/m/Input";
 import { TableSelectDialog$ConfirmEvent, TableSelectDialog$SearchEvent } from "sap/m/TableSelectDialog";
@@ -20,7 +20,7 @@ import Target, { Target$DisplayEvent } from "sap/ui/core/routing/Target";
 import Table, { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
 import MessageBox from "sap/m/MessageBox";
 import BusyIndicator from "sap/ui/core/BusyIndicator";
-import ERP from "../modules/ERP";
+import ERP from "contractmanagement/contractmanagement/modules/ERP";
 import formatter from "contractmanagement/contractmanagement/model/formatter";
 
 /**
@@ -212,7 +212,7 @@ export default class Equipment extends Controller {
 
     public async onOpenPopUpCup(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
         this.onGetPathEquipement(oEvent);
-        this._onGetWorkForce();
+        await this._onGetWorkForce();
 
         this.oFragmentCup ??= await Fragment.load({
             id: this.getView()?.getId(),
@@ -227,20 +227,21 @@ export default class Equipment extends Controller {
     private async _onGetWorkForce() : Promise<void> {
         BusyIndicator.show(0)
         try {            
-            // const { data } = await ERP.readDataKeysERP(
-            //     "/ManoObraSet",
-            //     this.ZCS_GET_COST_MAINTAIN_SRV,
-            //     // arrFilter
-            // );
-            const arrResults = [
+            const { data } = await ERP.readDataKeysERP(
+                "/ManoObraSet('53')",
+                this.ZCS_GET_COST_MAINTAIN_SRV,
+                // arrFilter
+            );
+            debugger
+            const arrResults : WorkForce[] = [
                 {
-                    key:'01',item: "Mano de Obra",annual: 200000,date: new Date(),monthly: 14000
+                    key:'01',item: "Mano de Obra",annual: data.ValorTotal ,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
                     key:'02',item: "Serv trasl/Atn a falla",annual: 200000,date: new Date(),monthly: 14000
                 },
                 {
-                    key:'03',item: "Otros materiales y/o inventarios",annual: 200000,date: new Date(),monthly: 14000
+                    key:'03',item: "Otros materiales y/o inventarios",annual: data.ValorTotal,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
                     key:'04',item: "Gastos de operación y venta",annual: 200000,date: new Date(),monthly: 14000
@@ -261,7 +262,8 @@ export default class Equipment extends Controller {
             this._onCalculateTotalWorkForce();
         } catch (oError: any) {
             this.oContractManagement.setProperty('/arrWorkForce', []);
-            throw new Error(oError.message);
+            MessageBox.error(oError.message)
+            // throw new Error(oError.message);
         } finally {
             this.oContractManagement.refresh(true);
             BusyIndicator.hide();

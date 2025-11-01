@@ -45,7 +45,8 @@
                     <t:Column hAlign="Center">
                         <Label text="Fecha" />
                         <t:template>
-                            <Text text="{mContractManagement>date}" />
+                            <DatePicker editable="false" dateValue="{mContractManagement>date}" />
+                            <!-- <Text text="{mContractManagement>date}" /> -->
                         </t:template>
                     </t:Column>
 
@@ -56,7 +57,7 @@
                                 value="{
                                     parts: ['mContractManagement>monthly'], 
                                     formatter: '.formatter.formatAmmount'
-                                }"                                
+                                }"
                             />
                         </t:template>
                     </t:Column>

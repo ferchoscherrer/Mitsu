@@ -11,7 +11,7 @@ import Dialog from "sap/m/Dialog";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
 import { TableSelectDialog$ConfirmEvent, TableSelectDialog$SearchEvent } from "sap/m/TableSelectDialog";
-import { Customer, Items } from "../model/types";
+import { Customer, Header, Items } from "../model/types";
 import Input, { Input$ValueHelpRequestEvent } from "sap/m/Input";
 import formatter from "contractmanagement/contractmanagement/model/formatter";
 import Table, { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
@@ -329,7 +329,7 @@ export default class Main extends Controller {
 
     public addMaterial(){
         let arrMaterial : Items[] = this.oContractManagement.getProperty(`/arrMaterial`);
-        const oHeader = this.oContractManagement.getProperty(`/header`);
+        const oHeader : Header = this.oContractManagement.getProperty(`/header`);
         const oMaterial : Items = {
             oMaterial: null,
             oCebe: null,
@@ -528,5 +528,35 @@ export default class Main extends Controller {
         this.oContractManagement.setProperty('/isEquipmentCup', _toCup);
 
         this._onEquipment();
+    }
+
+    public onSave (){
+        const oHeader : Header = this.oContractManagement.getProperty('/Header');
+        const arrMaterial : Items = this.oContractManagement.getProperty('/arrMaterial');
+    }
+
+    public onClear () {
+        const oHeader : Header = {
+            customerOrder: null,
+            department: null,
+            oChannel: null,
+            oCurrency: null,
+            oOfferType: null,
+            orderDate: null,
+            oRequester: null,
+            oSalesGroup: null,
+            oSalesOffice: null,
+            oSalesOrganization: null,
+            oSector: null,
+            paymentTerms: null,
+            validFromDate: null,
+            validUntilDate: null
+        };
+        this.oContractManagement.setProperty('/header', oHeader);
+        this.oContractManagement.setProperty('/arrMaterial', []);
+        this.oContractManagement.setProperty('/arrEquipment', []);
+        this.oContractManagement.setProperty('/oConfig/isEdiatbleEquipment', true);
+        this.oContractManagement.setProperty('/isEquipmentCup', true);
+        this.oContractManagement.setProperty('/arrWorkForce', true);
     }
 }
