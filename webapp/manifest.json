@@ -37,6 +37,15 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "ZSD_CREATE_QUOTATION_CUSTOMER_SRV":{
+        "uri": "sap/opu/odata/sap/ZSD_CREATE_QUOTATION_CUSTOMER_SRV",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
     },
     "crossNavigation": {
@@ -106,6 +115,13 @@
       },
       "ZCS_GET_COST_MAINTAIN_SRV": {
         "dataSource": "ZCS_GET_COST_MAINTAIN_SRV",
+        "preload": true,
+        "settings": {
+          "useBatch": true
+        }
+      },
+      "ZSD_CREATE_QUOTATION_CUSTOMER_SRV":{
+        "dataSource": "ZSD_CREATE_QUOTATION_CUSTOMER_SRV",
         "preload": true,
         "settings": {
           "useBatch": true

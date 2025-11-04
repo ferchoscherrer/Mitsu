@@ -72,6 +72,108 @@ export interface WorkForce_Service{
   Um: string
 }
 
+export interface ItemsAndData{
+  quotationItems: QuotationItemsInSet[]
+  quotationData: QuotationDataInSet[]
+}
+
+export interface KeyWorkForce {
+  "01": string
+  "02": string
+  "03": string
+  "04": string
+  "05": string
+}
+
+export interface EquipmentByWorkForce {
+  arrEquipment : QuotationEquipmentInSet[]
+  arrWorkForce : QuotationConditionsInSet[]
+}
+
+export interface Create_Quotation {
+  QuotationHeaderIn: QuotationHeaderIn
+  QuotationItemsInSet: QuotationItemsInSet[]
+  QuotationPartnersSet: QuotationPartnersSet[]
+  QuotationDataInSet: QuotationDataInSet[]
+  ReturnSet?: any[]
+}
+
+export interface QuotationHeaderIn {
+  CompCdeB: string
+  Currency: string
+  DistrChan: string
+  Division: string
+  DocType: string
+  Pmnttrms: string
+  PurchNoC: string
+  SalesGrp: string
+  SalesOff: string
+  SalesOrg: string
+  ReqDateH: string | Date
+  CtValidF: string | Date
+  CtValidT: string | Date
+  QtValidF: string | Date
+  QtValidT: string | Date
+}
+
+export interface QuotationItemsInSet {
+  Currency: string
+  Division: string
+  ItmNumber: string
+  Material: string
+  Plant: string
+  PrcGroup2: string
+  PrcGroup3: string
+  ProfitCtr: string
+  ShortText: string
+  TargetQty: string
+  TargetVal: string
+  TargetQu: string
+  QuotationConditionsInSet: QuotationConditionsInSet[]
+  QuotationEquipmentInSet: QuotationEquipmentInSet[]
+}
+
+export interface QuotationConditionsInSet {
+  ItmNumber: string
+  CondType: string
+  CondValue: string
+  Currency: string
+  CondUnit: string
+  CondPUnt: string
+}
+
+export interface QuotationEquipmentInSet {
+  ItmNumber: string
+  Equipment: string
+  InstalationDate: string | Date
+}
+
+export interface QuotationPartnersSet {
+  PartnRole: string
+  PartnNumb: string
+}
+
+export interface QuotationDataInSet {
+  ItmNumber: string
+  ValPer: string
+  ValPerUn: string
+  ValPerCa: string
+  InstDate: string | Date
+  AcceptDat: string | Date
+  ConStDat: string | Date
+  ConSiDat: string | Date
+  CancProc: string
+  ConEnAct: string
+  CancParty: string
+  Cancreason: string
+  ConEnDat: string | Date
+  CancDoc: string
+  ConStRul: string
+  ActDatrul: string
+  ConEnRul: string
+}
+
+
 interface Query {
   oMaterial : Order_Reason
 }

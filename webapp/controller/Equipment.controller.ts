@@ -235,19 +235,19 @@ export default class Equipment extends Controller {
             debugger
             const arrResults : WorkForce[] = [
                 {
-                    key:'01',item: "Mano de Obra",annual: data.ValorTotal ,date: new Date(),monthly: (data.ValorTotal/12)
+                    key:'ZCS1',item: "Mano de Obra",annual: data.ValorTotal ,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
-                    key:'02',item: "Serv trasl/Atn a falla",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS2',item: "Serv trasl/Atn a falla",annual: 200000,date: new Date(),monthly: 14000
                 },
                 {
-                    key:'03',item: "Otros materiales y/o inventarios",annual: data.ValorTotal,date: new Date(),monthly: (data.ValorTotal/12)
+                    key:'ZCS3',item: "Otros materiales y/o inventarios",annual: data.ValorTotal,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
-                    key:'04',item: "Gastos de operación y venta",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS4',item: "Gastos de operación y venta",annual: 200000,date: new Date(),monthly: 14000
                 },
                 {
-                    key:'05',item: "Utilidad",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS5',item: "Utilidad",annual: 200000,date: new Date(),monthly: 14000
                 },
                 {
                     key:'06',item: "Total",annual: 0,date: new Date(),monthly: 0
@@ -280,6 +280,7 @@ export default class Equipment extends Controller {
         const oFoundTotalMonthly = arrWorkForce.find((oWorkForce)=> oWorkForce.key === '06');
 
         this.oContractManagement.setProperty(`${this.sPahtEquipement}/cup`, oFoundTotalMonthly.monthly);
+        this.oContractManagement.setProperty(`${this.sPahtEquipement}/workForce`, arrWorkForce);
         this.onCloseWorkForce();
     }
 
