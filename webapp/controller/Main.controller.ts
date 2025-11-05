@@ -496,6 +496,7 @@ export default class Main extends Controller {
         BusyIndicator.show(0);
         try {
             this._onValidateData();
+            this.oContractManagement.setProperty(`/arrEquipment`, []);
             this._onEquipment();
         } catch (oError: any) {
             MessageBox.error(oError.message);
@@ -558,7 +559,11 @@ export default class Main extends Controller {
 
         } catch (oError:any) {
             debugger
-            MessageBox.error(oError.message);
+            if (oError.statusCode === "400"){
+                this._onErrorMessageERP(JSON.parse(oError.responseText));
+            }else {
+                MessageBox.error(oError.message);
+            }
         }finally {
             BusyIndicator.hide();
         }
@@ -678,7 +683,7 @@ export default class Main extends Controller {
 
         for (let i = 0; i < arrEquipment.length; i++) {
             const oEquipment = arrEquipment[i];
-            const arrWorkForce = oEquipment.workForce as WorkForce[];
+            const arrWorkForce = oEquipment.workForce as WorkForce[] || [];
             const iPosition : string = ((i+1)*10).toString();
             const oQuotationEquipmentInSet : QuotationEquipmentInSet = {
                 ItmNumber: iPosition.padStart(6,'0'),
@@ -708,7 +713,14 @@ export default class Main extends Controller {
             arrEquipment: arrQuotationEquipmentInSet,
             arrWorkForce: arrQuotationConditionsInSet
         };
-    } 
+    }
+
+    private _onErrorMessageERP(jsonErrorERP : any) {
+        const oError = jsonErrorERP.error;
+        const oMessage = oError.message;
+
+        MessageBox.error(oMessage.value);
+    }
 
     public onClear () {
         const oHeader : Header = {

@@ -4,7 +4,7 @@
     xmlns:t="sap.ui.table" 
 	xmlns:rowmodes="sap.ui.table.rowmodes"
 	>
-    <Dialog resizable="true" draggable="true">
+    <Dialog resizable="true" verticalScrolling="false" draggable="true" contentWidth="50%" contentHeight="28%">
         <customHeader>            
             <Toolbar>
                 <Title text="{i18n>cupService}" />
@@ -24,6 +24,9 @@
 				rowSelectionChange="onSelectRow"
 				rows="{mContractManagement>/arrWorkForce}"
 				selectionMode="None">
+                <t:layoutData>
+                    <FlexItemData growFactor="1" shrinkFactor="1" />
+                </t:layoutData>
                 <t:rowMode>
                     <rowmodes:Auto />
                 </t:rowMode>
@@ -54,11 +57,14 @@
                         <Label text="Mensual" />
                         <t:template>
                             <Input submit="_onCalculateTotalWorkForce" editable="{= ${mContractManagement>key} !== '06'}"
+                                value="{mContractManagement>monthly}"
+                            />
+                            <!-- 
                                 value="{
                                     parts: ['mContractManagement>monthly'], 
                                     formatter: '.formatter.formatAmmount'
                                 }"
-                            />
+                             -->
                         </t:template>
                     </t:Column>
                 </t:columns>

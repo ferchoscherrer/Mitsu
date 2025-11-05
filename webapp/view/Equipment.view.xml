@@ -18,7 +18,7 @@
                     <Title text="{i18n>equipmentAssig}"/>
                 </uxap:heading>
                 <uxap:navigationActions>
-                    <Button press="onNavBack" type="Emphasized" icon="sap-icon://decline" />
+                    <Button press="onNavBack" type="Emphasized" icon="sap-icon://undo" />
                 </uxap:navigationActions>
             </uxap:ObjectPageDynamicHeaderTitle>
         </f:title>
@@ -40,8 +40,8 @@
                     <OverflowToolbar>
                         <Title text="{i18n>equipment}s ({= ${mContractManagement>/arrEquipment}.length })"/>
                         <ToolbarSpacer />
-                        <Button text="{i18n>addEquipment}" press="onAddEquipment" type="Emphasized" icon="sap-icon://add" />
-                        <Button press="onDeleteEquipment" type="Reject" icon="sap-icon://delete" />
+                        <Button text="{i18n>addEquipment}" visible="{= !${mContractManagement>/isEquipmentCup} }" press="onAddEquipment" type="Emphasized" icon="sap-icon://add" />
+                        <Button press="onDeleteEquipment" visible="{= !${mContractManagement>/isEquipmentCup} }" type="Reject" icon="sap-icon://delete" />
                     </OverflowToolbar>                        
                 </t:extension>
                 <t:rowMode>
@@ -81,12 +81,12 @@
                     <t:Column visible="{mContractManagement>/isEquipmentCup}" >
                         <Text text="{i18n>CUP}"/>
                         <t:template >
-                            <Button press="onOpenPopUpCup" type="Accept" 
-                                text="{
+                            <Button press="onOpenPopUpCup" type="Accept" text="{mContractManagement>cup}"/>
+
+                            <!-- text="{
                                     parts: ['mContractManagement>cup'], 
                                     formatter: '.formatter.formatAmmount'
-                                }"
-                            />
+                                }" -->
 
                         </t:template>
                     </t:Column>
@@ -106,6 +106,7 @@
                 <Button 
                     id="btnNext" 
                     type="Accept" 
+                    visible="{= !${mContractManagement>/isEquipmentCup} }"
                     text="{i18n>accept}" 
                     press="onSaveEquipment"
                     icon="sap-icon://cart-approval" />
