@@ -69,6 +69,7 @@ export default class Main extends Controller {
         }) as Dialog;
 
         this.getView()?.addDependent(this.oFragmentOfferType);
+        
         this.oFragmentOfferType.open();
     }
 
@@ -549,7 +550,7 @@ export default class Main extends Controller {
                 QuotationItemsInSet: oItemsAndDataSet.quotationItems,
                 QuotationPartnersSet: [{
                     PartnNumb: oHeader.oRequester?.CustomerCode || "",
-                    PartnRole: "SO"
+                    PartnRole: "AG"
                 }]
             }
 

@@ -194,7 +194,7 @@
                                     <t:Column width="8rem">
                                         <Text text="{i18n>netValue}"/>
                                         <t:template >
-                                            <Input value="{path: 'mContractManagement>netValue'}"/>
+                                            <Input value="{path: 'mContractManagement>netValue'}" editable="false"/>
                                         </t:template>
                                     </t:Column>
                                     <t:Column width="13rem">

@@ -60,6 +60,22 @@ export default class Equipment extends Controller {
 
     public onNavBack(): void{
         if (this.oInfoMaterial?.fromTarget) {
+
+            const arrIDMaterialPos  = this.oInfoMaterial?.materialPositions as number[];
+            const arrEquipment : ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
+            let iTotalCUP : number = 0;
+
+            if (arrEquipment.length >= 1){
+
+                arrEquipment.forEach(oEquiment=> iTotalCUP += Number(oEquiment.cup || 0) )
+
+                for(const iPosition of arrIDMaterialPos){
+                    this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/netValue`, iTotalCUP);
+                }
+
+                this.oContractManagement.setProperty('/arrEquipment', []);
+            }
+
             this.oRouter.getTargets()?.display(this.oInfoMaterial.fromTarget);
             this.oContractManagement.setProperty('/oConfig/isEdiatbleEquipment', true);
             BusyIndicator.hide();
@@ -184,8 +200,6 @@ export default class Equipment extends Controller {
             for(const iPosition of arrIDMaterialPos){
                 this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/arrEquipment`, arrEquipment);
             }
-
-            this.oContractManagement.setProperty('/arrEquipment', []);
 
             this.onNavBack();
         }
