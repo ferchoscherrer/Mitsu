@@ -41,6 +41,8 @@ export interface ItemEquipment {
 }
 
 export interface Header {
+  oType :  Type | null
+  oContractType : ContractType | null
   oOfferType : OfferType | null
   oSalesOrganization : SalesOrganization | null
   oChannel : Channel | null
@@ -48,12 +50,14 @@ export interface Header {
   oSalesOffice : SalesOffice | null
   oSalesGroup : SalesGroup | null
   customerOrder : string | null
-  orderDate : string | null
+  orderDate : Date | string | null
   oRequester : Requester | null
   department : string | null
   paymentTerms : string | null
   validFromDate : string | null
   validUntilDate : string | null
+  validFromDateQuo : string | null
+  validUntilDateQuo : string | null
   oCurrency : Currency | null
 }
 
@@ -95,9 +99,15 @@ export interface Create_Quotation {
   QuotationItemsInSet: QuotationItemsInSet[]
   QuotationPartnersSet: QuotationPartnersSet[]
   QuotationDataInSet: QuotationDataInSet[]
-  ReturnSet?: any[]
+  Return: Return[]
 }
 
+
+export interface Return {
+  Type: string
+  Id : String
+  Number : String
+}
 export interface QuotationHeaderIn {
   CompCdeB: string
   Currency: string
@@ -114,6 +124,8 @@ export interface QuotationHeaderIn {
   CtValidT: string | Date
   QtValidF: string | Date
   QtValidT: string | Date
+  CustGrp1 : string
+  CustGrp2 : string
 }
 
 export interface QuotationItemsInSet {
@@ -122,10 +134,12 @@ export interface QuotationItemsInSet {
   ItmNumber: string
   Material: string
   Plant: string
+  PrcGroup1: string
   PrcGroup2: string
   PrcGroup3: string
   ProfitCtr: string
-  ShortText: string
+  //ShortText: string
+  CustMat35:string
   TargetQty: string
   TargetVal: string
   TargetQu: string
@@ -190,10 +204,18 @@ interface Order_Reason {
   Reason: string
   Description: string
 }
+interface Type {
+  Name: string
+  Description: string
+}
+interface ContractType {
+  Name: string
+  Description: string
+}
 interface OfferType  {
-  Vbtyp: string
+  Vbtyp?: string
   Auart: string
-  Kappl: string
+  Kappl?: string
   Bezei: string
 }
 interface SalesOrganization  {

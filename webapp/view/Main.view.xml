@@ -42,6 +42,30 @@
                         <form:content>
                             <!-- <core:Title text="{i18n>createOffer}"/> -->
                             <Label 
+                                text="{i18n>type}" 
+                                labelFor="iptType"
+                                required="true" 
+                            />
+                            <Input 
+                                id="iptType" 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oType/Name} {mContractManagement>/header/oType/Description}" 
+                                valueHelpRequest="onOpenPopUpType"
+                            />
+                            <Label 
+                                text="{i18n>contractType}" 
+                                labelFor="iptContractType"
+                                required="true" 
+                            />
+                            <Input 
+                                id="iptContractType" 
+                                showValueHelp="true"
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oContractType/Name} {mContractManagement>/header/oContractType/Description}" 
+                                valueHelpRequest="onOpenPopUpContractType"
+                            />
+                            <Label 
                                 text="{i18n>offerType}" 
                                 labelFor="iptOfferType"
                                 required="true" 
@@ -53,14 +77,14 @@
                                 value="{mContractManagement>/header/oOfferType/Auart} {mContractManagement>/header/oOfferType/Bezei}" 
                                 valueHelpRequest="onOpenPopUpOfferType"
                             />
-                            <Label text="{i18n>salesOrganization}" />
+                            <Label text="{i18n>salesOrganization}" required="true" />
                             <Input 
                                 showValueHelp="true"
                                 valueHelpOnly="true" 
                                 value="{mContractManagement>/header/oSalesOrganization/Vkorg} {mContractManagement>/header/oSalesOrganization/Vtext}" 
                                 valueHelpRequest="onOpenPopUpSalesOrganization"
                             />
-                            <Label text="{i18n>channel}" />
+                            <Label text="{i18n>channel}" required="true" />
                             <Input 
                                 showValueHelp="true"
                                 valueHelpOnly="true" 
@@ -107,6 +131,8 @@
                             <Input enabled="false" value="{mContractManagement>/header/paymentTerms}"/>
                             <Label text="{i18n>validFromUntil}" />
                             <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
+                            <Label text="{i18n>validFromUntilQuo}" />
+                            <DateRangeSelection dateValue="{mContractManagement>/header/validFromDateQuo}" secondDateValue="{mContractManagement>/header/validUntilDateQuo}"/>
                             <Label text="{i18n>currency}" />
                             <Input 
                                 showValueHelp="true"

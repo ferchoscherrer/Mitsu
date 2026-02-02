@@ -1,5 +1,7 @@
 {
     "header": {
+        "oType": null,
+        "oContractType": null,
         "oOfferType": null,
         "oSalesOrganization": null,
         "oChannel": null,
@@ -12,6 +14,7 @@
         "department": null,
         "paymentTerms": null,
         "validFromDate": null,
+        "validFromDateQuo": null,
         "oCurrency": null
     },
     "arrMaterial": [],

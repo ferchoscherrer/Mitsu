@@ -34,6 +34,8 @@ export default class Main extends Controller {
     private oI18n: ResourceBundle;
     private oRouter: Router;
 
+    private oFragmentType: Dialog;
+    private oFragmentContractType: Dialog;
     private oFragmentOfferType: Dialog;
     private oFragmentSalesOrg: Dialog;
     private oFragmentChannel: Dialog;
@@ -58,7 +60,129 @@ export default class Main extends Controller {
         this.oI18n = this.oI18nModel.getResourceBundle() as ResourceBundle;
         this.oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
         this.ZSD_CREATE_QUOTATION_CUSTOMER_SRV = this.getOwnerComponent()?.getModel("ZSD_CREATE_QUOTATION_CUSTOMER_SRV") as ODataModel;
+        this.oRouter.getRoute("RouteMain")!.attachPatternMatched(this._onRouteMatched, this);
+        }
+
+
+        private _onRouteMatched(): void {
+    // Agregamos un pequeño delay para ganar la "carrera" contra el framework
+    setTimeout(() => {
+        const oToday = new Date();
+        this.oContractManagement.setProperty("/header", {
+            orderDate: oToday,
+            oType: { Name: "CO", Description: "Contrato" },
+            oOfferType: { Auart: "AV", Bezei: "Oferta p.contrato" },
+            oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" }
+        });
+    }, 200); // 200ms es suficiente para que el framework termine su ciclo inicial
+}
+//         private _onRouteMatched(): void {
+//             setTimeout(() => {
+//         const oToday = new Date();
+
+//         if (this.oContractManagement) {
+//             this.oContractManagement.setProperty("/header", {
+//                 orderDate: oToday,
+//                 oType: { Name: "CO", Description: "Contrato" },
+//                 oOfferType: { Auart: "AV", Bezei: "Oferta p.contrato" },
+//                 oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" }
+//            });
+//     }, 200); // 200ms es suficiente para que el framework termine su ciclo inicial
+// }
+
+
+    //     const oToday = new Date();
+    //     this.oContractManagement.setProperty("/header", {
+    //     orderDate: oToday });
+    //     this.oContractManagement.setProperty("/header/oType", {
+    //     Name: "CO",
+    //     Description: "Contrato"
+    // });
+    // this.oContractManagement.setProperty("/header/oOfferType", {
+    //     Auart: "AV",
+    //     Bezei: "Oferta p.contrato"
+    // });
+    // this.oContractManagement.setProperty("/header/oSalesOrganization", {
+    //     Vkorg: "MEL1",
+    //     Vtext: "Mitsubishi Electric"
+    // });
+    // }
+
+
+
+    public async onOpenPopUpType(): Promise<void> {
+
+        this.oFragmentType ??= await Fragment.load({
+            id: this.getView()?.getId(),
+            name: "contractmanagement.contractmanagement.view.fragment.TblType",
+            controller: this,
+        }) as Dialog;
+
+        this.getView()?.addDependent(this.oFragmentType);
+        
+        this.oFragmentType.open();
     }
+
+    public onSearchType(oEvent: TableSelectDialog$SearchEvent): void {
+
+        let sValue: string = oEvent.getParameter("value") || "";
+        let oFilter = new Filter({
+            filters: [
+                new Filter("Name", FilterOperator.Contains, sValue),
+                new Filter("Description", FilterOperator.Contains, sValue)
+            ],
+            and: false
+        });
+        let oBinding = oEvent.getSource().getBinding("items") as ODataListBinding;
+        oBinding.filter([oFilter]);
+    }
+
+    public onSelectType(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+
+        for(const oSelect of oSelectedContext){            
+            this.oContractManagement.setProperty(`/header/oType`, oSelect.getObject());
+        }
+    }
+
+
+    public async onOpenPopUpContractType(): Promise<void> {
+
+        this.oFragmentContractType ??= await Fragment.load({
+            id: this.getView()?.getId(),
+            name: "contractmanagement.contractmanagement.view.fragment.TblContractType",
+            controller: this,
+        }) as Dialog;
+
+        this.getView()?.addDependent(this.oFragmentContractType);
+        
+        this.oFragmentContractType.open();
+    }
+
+    public onSearchContractType(oEvent: TableSelectDialog$SearchEvent): void {
+
+        let sValue: string = oEvent.getParameter("value") || "";
+        let oFilter = new Filter({
+            filters: [
+                new Filter("Name", FilterOperator.Contains, sValue),
+                new Filter("Description", FilterOperator.Contains, sValue)
+            ],
+            and: false
+        });
+        let oBinding = oEvent.getSource().getBinding("items") as ODataListBinding;
+        oBinding.filter([oFilter]);
+    }
+
+    public onSelectContractType(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+
+        for(const oSelect of oSelectedContext){            
+            this.oContractManagement.setProperty(`/header/oContractType`, oSelect.getObject());
+        }
+    }
+
+
+
 
     public async onOpenPopUpOfferType(): Promise<void> {
 
@@ -493,6 +617,7 @@ export default class Main extends Controller {
             }
     }
 
+
     public onAssignEquipment() { 
         BusyIndicator.show(0);
         try {
@@ -522,6 +647,7 @@ export default class Main extends Controller {
     }
 
     public showEquipment(oEvent : Button$PressEvent, _toCup=false) {
+        
         const oSource : Button = oEvent.getSource();
         const oBinding = oSource.getBindingContext("mContractManagement") as ContextV2;
         const sPath : string = oBinding.getPath();
@@ -547,19 +673,48 @@ export default class Main extends Controller {
             const oJsonCreate : Create_Quotation = {
                 QuotationDataInSet: oItemsAndDataSet.quotationData,
                 QuotationHeaderIn: oQuotationHeaderIn,
+                Return : [],
                 QuotationItemsInSet: oItemsAndDataSet.quotationItems,
                 QuotationPartnersSet: [{
                     PartnNumb: oHeader.oRequester?.CustomerCode || "",
                     PartnRole: "AG"
                 }]
             }
-
+//debugger
             const { data: oResponse } = await ERP.createDataERP('/QuotationHeaderSet', this.ZSD_CREATE_QUOTATION_CUSTOMER_SRV,  oJsonCreate);
             
-            MessageBox.success(this.oI18n.getText("successSave",[oResponse.SalesDocument]) || "" );
+            const aReturnMessages = oResponse.Return.results; // Accedemos al array de mensajes
+            let sSalesDocument: string | undefined;
+
+            if (aReturnMessages && aReturnMessages.length > 0) {
+                // Obtenemos el ÚLTIMO mensaje (que suele contener el resultado final)
+                const oLastMessage = aReturnMessages[aReturnMessages.length - 1];
+                const sMessage = oLastMessage.Message;
+                // Expresión Regular para buscar un número de 8 dígitos (ej. 20000078)
+                // Buscamos números de 8 o más dígitos que típicamente representan documentos SAP.
+                const regex = /(\d{8,})/; 
+                const match = sMessage.match(regex);
+                
+                if (match && match[1]) {
+                    // match[1] es el primer grupo capturado por el regex (el número)
+                    sSalesDocument = match[1];
+                }
+            }
+            
+            if (sSalesDocument) {
+            //MessageBox.success(this.oI18n.getText("successSave",[oResponse.SalesDocument]) || "" );
+            MessageBox.success(
+                    this.oI18n.getText("successSave", [sSalesDocument]) || "Oferta creada con éxito, pero el número de documento no pudo ser extraído.", {
+                    onClose: () => {
+                        // AQUÍ: Cuando el usuario da click en "OK", la app se resetea
+                this._initDefaultData();
+                }
+        }
+                );
+            }
 
         } catch (oError:any) {
-            debugger
+        //    debugger
             if (oError.statusCode === "400"){
                 this._onErrorMessageERP(JSON.parse(oError.responseText));
             }else {
@@ -581,6 +736,7 @@ export default class Main extends Controller {
     }
 
     private _headerIn() : QuotationHeaderIn {
+       // debugger
         const oHeader : Header = this.oContractManagement.getProperty('/header');
         const oCurrentDate : Date = new Date();
 
@@ -595,11 +751,14 @@ export default class Main extends Controller {
             SalesGrp: oHeader.oSalesGroup?.Group || "",
             SalesOff: oHeader.oSalesOffice?.Office || "",
             SalesOrg: oHeader.oSalesOrganization?.Vkorg || "",
-            ReqDateH: oCurrentDate,
+            ReqDateH: oHeader.orderDate || "", //oCurrentDate,
             CtValidF: oHeader.validFromDate || "",
             CtValidT: oHeader.validUntilDate || "",
-            QtValidF: oCurrentDate,
-            QtValidT: new Date(oCurrentDate.setDate(oCurrentDate.getDate() + 5))
+            QtValidF: oHeader.validFromDateQuo || "",
+          //  QtValidT: new Date(oCurrentDate.setDate(oCurrentDate.getDate() + 5))
+            QtValidT: oHeader.validUntilDateQuo || "",
+            CustGrp1 : oHeader.oType?.Name || "",
+            CustGrp2 : oHeader.oContractType?.Name || "",
         };
     }
 
@@ -637,11 +796,13 @@ export default class Main extends Controller {
                 ItmNumber: iPosition.padStart(6,'0'),
                 Material: oMaterial.oMaterial?.Material || "",
                 Plant: oMaterial.selectedKeyCenter || "",
+                PrcGroup1: oMaterial.selectedCustomerGroup1 || "",
                 PrcGroup2: oMaterial.selectedCustomerGroup3 || "",
                 PrcGroup3: oMaterial.selectedWorkingHours || "",
                 ProfitCtr: oMaterial.oCebe?.Profit || "",
-                ShortText: oHeader.customerOrder || "",
-                TargetQty: iPosition,
+                //ShortText: oHeader.customerOrder || "",
+                CustMat35: oEquipmentAndWorkForce.arrEquipment?.[0]?.Equipment || "",
+                TargetQty: '1', //iPosition,
                 TargetQu: "SR",
                 TargetVal: oMaterial.netValue.toString(),
                 QuotationConditionsInSet: oEquipmentAndWorkForce.arrWorkForce,
@@ -654,9 +815,9 @@ export default class Main extends Controller {
                 ValPerUn: "",
                 InstDate: oEquipmentAndWorkForce.arrEquipment[0].InstalationDate,
                 AcceptDat: new Date("0000000000000"),
-                ConStDat: oHeader.validFromDate || "",
+                ConStDat: oMaterial.validFromDate || "", //oHeader.validFromDate || "",
                 ConSiDat: new Date("0000000000000"),
-                ConEnDat: oHeader.validUntilDate || "",
+                ConEnDat: oMaterial.validUntilDate || "", //oHeader.validUntilDate || "",
                 ActDatrul: "",
                 CancDoc: "",
                 CancParty: "",
@@ -723,12 +884,47 @@ export default class Main extends Controller {
         MessageBox.error(oMessage.value);
     }
 
+    private _initDefaultData(): void {
+    const oToday = new Date();
+    // Definimos el estado inicial exacto que quieres
+    const oInitialHeader: Header = {
+        orderDate: oToday,
+        oType: { Name: "CO", Description: "Contrato" },
+        oOfferType: { Auart: "AV", Bezei: "Oferta p.contrato" },
+        oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" },
+        // El resto de campos en null para limpiar lo anterior
+        customerOrder: null,
+        department: null,   
+        oChannel: null,
+        oCurrency: null,
+        oContractType: null,
+        oRequester: null,
+        oSalesGroup: null,
+        oSalesOffice: null,
+        oSector: null,
+        paymentTerms: null,
+        validFromDate: null,
+        validUntilDate: null,
+        validFromDateQuo: null,
+        validUntilDateQuo: null
+    };
+
+    this.oContractManagement.setProperty('/header', oInitialHeader);
+    this.oContractManagement.setProperty('/arrMaterial', []);
+    this.oContractManagement.setProperty('/arrEquipment', []);
+    this.oContractManagement.setProperty('/oConfig/isEditableEquipment', true);
+    this.oContractManagement.setProperty('/isEquipmentCup', true);
+    this.oContractManagement.setProperty('/arrWorkForce', []); // Corregido de true a []
+}
+
     public onClear () {
         const oHeader : Header = {
             customerOrder: null,
             department: null,
             oChannel: null,
             oCurrency: null,
+            oType : null,
+            oContractType : null,
             oOfferType: null,
             orderDate: null,
             oRequester: null,
@@ -738,7 +934,9 @@ export default class Main extends Controller {
             oSector: null,
             paymentTerms: null,
             validFromDate: null,
-            validUntilDate: null
+            validUntilDate: null,
+            validFromDateQuo :  null,
+            validUntilDateQuo :  null
         };
         this.oContractManagement.setProperty('/header', oHeader);
         this.oContractManagement.setProperty('/arrMaterial', []);
