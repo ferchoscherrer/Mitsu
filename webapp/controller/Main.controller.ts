@@ -72,7 +72,11 @@ export default class Main extends Controller {
             orderDate: oToday,
             oType: { Name: "CO", Description: "Contrato" },
             oOfferType: { Auart: "AV", Bezei: "Oferta p.contrato" },
-            oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" }
+            oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" },
+            oChannel: { Vtweg: "NA", Vtext: "Canal Nacional" },
+            oSector: { Spart: "MS", Vtext: "MaintenanceServiceC" },
+            oCurrency: { CurrencyCode: "MXN", CurrencyName: "Pesos mexicanos" },
+            
         });
     }, 200); // 200ms es suficiente para que el framework termine su ciclo inicial
 }
@@ -842,7 +846,7 @@ export default class Main extends Controller {
             quotationData: arrQuotationDataInSet
         }
     }
-
+    /* inicio comentado para mejorar la funcion y mandar ZVKP como total
     private _equipmentAndWorForce(arrEquipment : ItemEquipment[], sCurrency : string, sParentItemNumber: string) : EquipmentByWorkForce {
 
         let arrQuotationEquipmentInSet : QuotationEquipmentInSet[] = [];
@@ -862,6 +866,7 @@ export default class Main extends Controller {
 
             arrQuotationEquipmentInSet.push(oQuotationEquipmentInSet);
 
+            
             for (const oWorkForce of arrWorkForce){
                 if (oWorkForce.key !== '06'){
                     const oQuotationConditionsInSet : QuotationConditionsInSet = {
@@ -885,6 +890,69 @@ export default class Main extends Controller {
             arrWorkForce: arrQuotationConditionsInSet
         };
     }
+        */ //Fin comentado  para mejorar la funcion y mandar ZVKP como total
+
+        //inicio mejora funcion
+
+    private _equipmentAndWorForce(arrEquipment : ItemEquipment[], sCurrency : string, sParentItemNumber: string) : EquipmentByWorkForce {
+
+        let arrQuotationEquipmentInSet : QuotationEquipmentInSet[] = [];
+        let arrQuotationConditionsInSet : QuotationConditionsInSet[] = [];
+
+        // Pre-formateamos el número de posición (relleno con ceros a la izquierda)
+        const sItemNumberFormatted = sParentItemNumber.padStart(6,'0');
+
+        for (let i = 0; i < arrEquipment.length; i++) {
+            const oEquipment = arrEquipment[i];
+            const arrWorkForce = oEquipment.workForce as WorkForce[] || [];
+
+            // 1. Llenado de Equipos
+            const oQuotationEquipmentInSet : QuotationEquipmentInSet = {
+                ItmNumber: sItemNumberFormatted,
+                Equipment: oEquipment.EquipmentB || "",
+                InstalationDate: oEquipment.InstalationDate || ""
+            };
+
+            arrQuotationEquipmentInSet.push(oQuotationEquipmentInSet);
+
+            // 2. Llenado de Condiciones (WorkForce)
+            for (const oWorkForce of arrWorkForce){
+                
+                // --- CAMBIO PRINCIPAL AQUÍ ---
+                // Determinamos el tipo de condición:
+                // Si la key es '06' (Total), usamos 'ZVKP'. Si no, usamos la key original.
+                let sCondType = "";
+                
+                if (oWorkForce.key === '06') {
+                    sCondType = "ZVKP";
+                } else {
+                    sCondType = oWorkForce.key;
+                }
+
+                // Procesamos si tenemos un tipo de condición válido y el monto es positivo o cero
+                // (Nota: Ya no excluimos el '06' con un if)
+                if (sCondType && oWorkForce.monthly >= 0) {
+                    
+                    const oQuotationConditionsInSet : QuotationConditionsInSet = {
+                        ItmNumber: sItemNumberFormatted,   // Ej: "000010"
+                        CondPUnt: "1",       // Ej: "10" (para que coincida con la unidad de precio)
+                        CondType: sCondType,               // "ZVKP" o la que corresponda
+                        CondUnit: "SR",
+                        CondValue: oWorkForce.monthly.toString(),
+                        Currency: sCurrency
+                    };
+                    
+                    arrQuotationConditionsInSet.push(oQuotationConditionsInSet);
+                }
+            }            
+        }
+
+        return {
+            arrEquipment: arrQuotationEquipmentInSet,
+            arrWorkForce: arrQuotationConditionsInSet
+        };
+    }
+// fin mejora funcion
 
     private _onErrorMessageERP(jsonErrorERP : any) {
         const oError = jsonErrorERP.error;
@@ -901,16 +969,16 @@ export default class Main extends Controller {
         oType: { Name: "CO", Description: "Contrato" },
         oOfferType: { Auart: "AV", Bezei: "Oferta p.contrato" },
         oSalesOrganization: { Vkorg: "MEL1", Vtext: "Mitsubishi Electric" },
+        oChannel: { Vtweg: "NA", Vtext: "Canal Nacional" },
+        oSector: { Spart: "MS", Vtext: "MaintenanceServiceC" },
+        oCurrency: { CurrencyCode: "MXN", CurrencyName: "Pesos mexicanos" },
         // El resto de campos en null para limpiar lo anterior
         customerOrder: null,
         department: null,   
-        oChannel: null,
-        oCurrency: null,
         oContractType: null,
         oRequester: null,
         oSalesGroup: null,
         oSalesOffice: null,
-        oSector: null,
         paymentTerms: null,
         validFromDate: null,
         validUntilDate: null,

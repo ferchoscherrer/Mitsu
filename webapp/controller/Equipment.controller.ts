@@ -334,6 +334,9 @@ export default class Equipment extends Controller {
         this.oFragmentCup.open();
     }
 
+
+    //inicio - se comenta funcion para mejorarla
+    /*
     private async _onGetWorkForce() : Promise<void> {
         BusyIndicator.show(0)
         try {            
@@ -379,6 +382,70 @@ export default class Equipment extends Controller {
             BusyIndicator.hide();
         }
     } 
+*/
+    //fin - se comenta funcion para mejorarla
+
+    // inicio - funcion mejorada
+    private async _onGetWorkForce() : Promise<void> {
+        BusyIndicator.show(0);
+        try {            
+            // 1. Recuperamos el objeto del equipo actual usando el path guardado
+            // (Asegúrate de que 'sPahtEquipement' se haya seteado en onOpenPopUpCup)
+            const oEquipment = this.oContractManagement.getProperty(this.sPahtEquipement);
+            
+            // 2. Obtenemos el ID del equipo (EquipmentB)
+            // Si tu propiedad se llama diferente (ej. Equipment), cámbialo aquí.
+            const sEquipmentID = oEquipment.EquipmentB;
+
+            if (!sEquipmentID) {
+                throw new Error("No se ha identificado el número de equipo para consultar la mano de obra.");
+            }
+
+            // 3. Llamada dinámica al OData inyectando el ID del equipo
+            const { data } = await ERP.readDataKeysERP(
+                `/ManoObraSet('${sEquipmentID}')`, 
+                this.ZCS_GET_COST_MAINTAIN_SRV
+            );
+            
+            // 4. Mapeo de resultados (Lógica original conservada)
+            const arrResults : WorkForce[] = [
+                {
+                    key:'ZCS1', item: "Mano de Obra", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12)
+                },
+                {
+                    key:'ZCS2', item: "Serv trasl/Atn a falla", annual: 0, date: new Date(), monthly: 0
+                },
+                {
+                    key:'ZCS3', item: "Otros materiales y/o inventarios", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12)
+                },
+                {
+                    key:'ZCS4', item: "Gastos de operación y venta", annual: 0, date: new Date(), monthly: 0
+                },
+                {
+                    key:'ZCS5', item: "Utilidad", annual: 0, date: new Date(), monthly: 0
+                },
+                {
+                    key:'06', item: "Total", annual: 0, date: new Date(), monthly: 0
+                }
+            ];
+
+            if (arrResults.length <= 0) 
+                throw new Error(this.oI18n.getText("noDataWorkForce"));
+                           
+            this.oContractManagement.setProperty('/arrWorkForce', arrResults);
+            this._onCalculateTotalWorkForce();
+
+        } catch (oError: any) {
+            this.oContractManagement.setProperty('/arrWorkForce', []);
+            // Manejo de error más amigable si falla la lectura del equipo
+            const sMsg = oError.message || "Error al obtener datos de mano de obra";
+            MessageBox.error(sMsg);
+        } finally {
+            this.oContractManagement.refresh(true);
+            BusyIndicator.hide();
+        }
+    }
+    //fin - funcion mejorada
 
     public onCloseWorkForce() {
         this.oContractManagement.setProperty('/arrWorkForce', []);
