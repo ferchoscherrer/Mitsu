@@ -46,7 +46,17 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "ZCS_GET_BOM_MATERIAL_SRV":{
+        "uri": "sap/opu/odata/sap/ZCS_GET_BOM_MATERIAL_SRV",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
+
     },
     "crossNavigation": {
       "inbounds": {
@@ -122,6 +132,13 @@
       },
       "ZSD_CREATE_QUOTATION_CUSTOMER_SRV":{
         "dataSource": "ZSD_CREATE_QUOTATION_CUSTOMER_SRV",
+        "preload": true,
+        "settings": {
+          "useBatch": true
+        }
+      },
+       "ZCS_GET_BOM_MATERIAL_SRV":{
+        "dataSource": "ZCS_GET_BOM_MATERIAL_SRV",
         "preload": true,
         "settings": {
           "useBatch": true

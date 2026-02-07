@@ -22,6 +22,10 @@ import MessageBox from "sap/m/MessageBox";
 import BusyIndicator from "sap/ui/core/BusyIndicator";
 import ERP from "contractmanagement/contractmanagement/modules/ERP";
 import formatter from "contractmanagement/contractmanagement/model/formatter";
+import MessageToast from "sap/m/MessageToast";
+
+
+import { BOMItem } from "../model/types";
 
 /**
  * @namespace contractmanagement.contractmanagement.controller
@@ -39,6 +43,12 @@ export default class Equipment extends Controller {
     private sPahtEquipement: string;
     private arrIndexSelectRow: number[] = [];
 
+    // --- INICIO CÓDIGO NUEVO (Propiedades) ---
+    private oFragmentBOM: Dialog; // Referencia al nuevo fragmento
+    private ZCS_GET_BOM_MATERIAL_SRV: ODataModel; // Nuevo Modelo OData
+    private sCurrentEquipmentID: string; // Para guardar el ID del equipo actual
+    // --- FIN CÓDIGO NUEVO ---
+
     
     private ZCS_GET_COST_MAINTAIN_SRV: ODataModel;
 
@@ -52,10 +62,32 @@ export default class Equipment extends Controller {
         this.oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
         this.ZCS_GET_COST_MAINTAIN_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_COST_MAINTAIN_SRV") as ODataModel;
 
+
+        // --- INICIO CÓDIGO NUEVO (Inicializar modelo BOM) ---
+        // Asegúrate de que este ID "ZCS_GET_BOM_MATERIAL_SRV" coincida con tu manifest.json
+        this.ZCS_GET_BOM_MATERIAL_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_BOM_MATERIAL_SRV") as ODataModel; 
+        // --- FIN CÓDIGO NUEVO ---
+
         this.oTarget = this.oRouter.getTarget("TargetEquipment") as Target;
         this.oTarget.attachDisplay((oEvent: Target$DisplayEvent) => {
             this.oInfoMaterial = oEvent.getParameter("data") as RoutingEquipment;
         });
+    }
+
+
+    public onValidateNumber(oEvent: any): void {
+        const oInput = oEvent.getSource();
+        let sValue = oEvent.getParameter("value");
+
+        // 1. Eliminar cualquier caracter que no sea número o punto
+        // Nota: Permitimos comas si tu formato usa comas, aquí asumo formato estándar (1234.56)
+        // Si usas puntos para decimales, usa esta regex: /[^0-9.]/g
+        let sNewValue = sValue.replace(/[^0-9.,]/g, "");
+
+        // 2. Si el valor cambió (porque había letras), actualizamos el input
+        if (sValue !== sNewValue) {
+            oInput.setValue(sNewValue);
+        }
     }
 
     public onNavBack(): void{
@@ -128,14 +160,78 @@ export default class Equipment extends Controller {
         oBinding.filter([oFilter]);
     }
 
-    public onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): void {
+    // se comenta para agregar nueva
+  /*  public onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): void {
         const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
 
         if (this.sPahtEquipement)
             for(const oSelect of oSelectedContext){
                 this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oSelect.getObject());
+                
             }
     }
+    */
+   /*
+   public onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+
+        if (this.sPahtEquipement) {
+            for(const oSelect of oSelectedContext){
+                // CORRECCIÓN: Asignar el tipo 'ItemEquipment' al objeto recuperado
+                //const oEquipmentObj = oSelect.getObject() as ItemEquipment;
+                const oEquipmentObj = oSelect.getObject() as any;
+                
+                this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oEquipmentObj);
+                const sMaterialDelItem = oEquipmentObj.Material || oEquipmentObj.Matnr || "";
+
+                // Ahora TypeScript ya sabe que existe .EquipmentB
+                if (oEquipmentObj.EquipmentB) {
+                    this.onCheckBOM(oEquipmentObj.EquipmentB, sMaterialDelItem);
+                }
+            }
+        }
+    } */
+
+        public onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+
+        // 1. Recuperamos el Material desde el Modelo Principal (Main)
+        // Usamos la información de navegación para saber qué posición se está editando
+        let sMaterialDelMain = "";
+        
+        if (this.oInfoMaterial && this.oInfoMaterial.materialPositions && this.oInfoMaterial.materialPositions.length > 0) {
+            // Tomamos el índice de la primera posición seleccionada en el Main
+            const iIndexPosition = this.oInfoMaterial.materialPositions[0];
+            
+            // Leemos el objeto Material guardado en el modelo mContractManagement
+            // Ruta: /arrMaterial/{indice}/oMaterial
+            const oMaterialObj = this.oContractManagement.getProperty(`/arrMaterial/${iIndexPosition}/oMaterial`);
+            
+            if (oMaterialObj) {
+                // Asumiendo que la propiedad se llama 'Material' en tu tipo Material
+                sMaterialDelMain = oMaterialObj.Material || "";
+            }
+        }
+        
+        console.log("Material recuperado del Main:", sMaterialDelMain); // Para depuración
+
+        // 2. Procesamos la selección del equipo
+        if (this.sPahtEquipement) {
+            for(const oSelect of oSelectedContext){
+                const oEquipmentObj = oSelect.getObject() as any; // Cast a any o ItemEquipment
+                
+                this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oEquipmentObj);
+
+                // 3. Llamamos a onCheckBOM enviando el Material del Main
+                if (oEquipmentObj.EquipmentB) {
+                    // Pasamos: (ID del Equipo, ID del Material del Contrato)
+                    this.onCheckBOM(oEquipmentObj.EquipmentB, sMaterialDelMain);
+                }
+            }
+        }
+    }
+
+
 
     public onAddEquipment(oEvent: Button$PressEvent): void {
         const arrEquipments: ItemEquipment[] = this.oContractManagement.getProperty(`/arrEquipment`);
@@ -246,22 +342,22 @@ export default class Equipment extends Controller {
                 this.ZCS_GET_COST_MAINTAIN_SRV,
                 // arrFilter
             );
-            debugger
+            //debugger
             const arrResults : WorkForce[] = [
                 {
                     key:'ZCS1',item: "Mano de Obra",annual: data.ValorTotal ,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
-                    key:'ZCS2',item: "Serv trasl/Atn a falla",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS2',item: "Serv trasl/Atn a falla",annual: 0,date: new Date(),monthly: 0
                 },
                 {
                     key:'ZCS3',item: "Otros materiales y/o inventarios",annual: data.ValorTotal,date: new Date(),monthly: (data.ValorTotal/12)
                 },
                 {
-                    key:'ZCS4',item: "Gastos de operación y venta",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS4',item: "Gastos de operación y venta",annual: 0,date: new Date(),monthly: 0
                 },
                 {
-                    key:'ZCS5',item: "Utilidad",annual: 200000,date: new Date(),monthly: 14000
+                    key:'ZCS5',item: "Utilidad",annual: 0,date: new Date(),monthly: 0
                 },
                 {
                     key:'06',item: "Total",annual: 0,date: new Date(),monthly: 0
@@ -313,5 +409,139 @@ export default class Equipment extends Controller {
         arrWorkForce[5].annual = iTotalAnnual;
         arrWorkForce[5].monthly = iTotalMonthly;
 
+    }
+
+
+
+    /**
+     * Consulta el servicio OData ZCS_GET_BOM_MATERIAL_SRV con el filtro Intrm eq '3'
+     * y abre el diálogo de revisión.
+     */
+    public async onCheckBOM(sEquipmentID: string, sMaterial: string): Promise<void> {
+        this.sCurrentEquipmentID = sEquipmentID;
+
+       MessageToast.show("Se te mostrarán los materiales permitidos en la cobertura, espera un momento", {
+            at: "CenterTop", // Posición: Centro vertical y horizontal
+            width: "25rem",      // Ancho un poco mayor para que se lea bien
+            offset: "0 20", // Mover 0px horizontal, 50px hacia abajo       // Duración en milisegundos (3 segundos)
+            duration: 3000
+            
+        });
+
+        BusyIndicator.show(0);
+
+        try {
+            // 1. Preparamos el filtro específico
+            const aFilters = [
+                new Filter("Intrm", FilterOperator.EQ, sMaterial),
+                new Filter("Werks", FilterOperator.EQ, "TLP1") 
+            ];
+
+            // 2. Llamada usando tu helper ERP
+            const { data } = await ERP.readDataKeysERP(
+                "/BomItemsSet", 
+                this.ZCS_GET_BOM_MATERIAL_SRV, 
+                aFilters
+            );
+
+            // 3. Mapeo de resultados
+            const arrBOM: any[] = data.results.map((item: any) => ({
+                Material: item.Idnrk,
+                Description: item.Ojtxp,
+                Quantity: item.Mnglg,
+                Unit: item.Mmein,
+                IsManual: false
+            }));
+
+            // 4. Actualizar Modelo Local
+            this.oContractManagement.setProperty('/arrBOM', arrBOM);
+            this.oContractManagement.setProperty('/isCustomBOM', false);
+
+            // 5. Abrir Popup
+            await this.onOpenBOMDialog();
+
+        } catch (error: any) {
+            MessageBox.error("Error al obtener la lista de materiales (BOM): " + error.message);
+        } finally {
+            BusyIndicator.hide();
+        }
+    }
+
+    public async onOpenBOMDialog(): Promise<void> {
+        this.oFragmentBOM ??= await Fragment.load({
+            id: this.getView()?.getId(),
+            name: "contractmanagement.contractmanagement.view.fragment.DialogBOM",
+            controller: this,
+        }) as Dialog;
+
+        this.getView()?.addDependent(this.oFragmentBOM);
+        this.oFragmentBOM.open();
+    }
+
+    public onSwitchToCustomBOM(): void {
+        MessageBox.confirm(
+            this.oI18n.getText("confirmCustomBOM") || "Al modificar, se creará una alternativa. ¿Desea continuar?",
+            {
+                onClose: (sAction: string) => {
+                    if (sAction === MessageBox.Action.OK) {
+                        this.oContractManagement.setProperty('/isCustomBOM', true);
+                    }
+                }
+            }
+        );
+    }
+
+    public onAddBOMMaterial(): void {
+        const arrBOM = this.oContractManagement.getProperty('/arrBOM');
+        arrBOM.push({
+            Material: "",
+            Description: "",
+            Quantity: 1,
+            Unit: "PC",
+            IsManual: true
+        });
+        this.oContractManagement.refresh(true);
+    }
+
+    public async onConfirmBOM(): Promise<void> {
+        const bIsCustom = this.oContractManagement.getProperty('/isCustomBOM');
+        const arrBOM = this.oContractManagement.getProperty('/arrBOM');
+
+        this.oFragmentBOM.close();
+
+        if (bIsCustom) {
+            await this._createAlternativeBOM(arrBOM);
+        } else {
+            MessageBox.success(this.oI18n.getText("bomAssigned") || "Lista de materiales estándar asignada.");
+        }
+    }
+
+    private async _createAlternativeBOM(arrBOM: any[]): Promise<void> {
+        BusyIndicator.show(0);
+        try {
+            const oPayload = {
+                Equipment: this.sCurrentEquipmentID,
+                Items: arrBOM
+            };
+
+            await ERP.createDataERP(
+                "/AlternativeBOMSet", 
+                this.ZCS_GET_COST_MAINTAIN_SRV, 
+                oPayload
+            );
+
+            MessageBox.success(this.oI18n.getText("alternativeCreated") || "Alternativa creada exitosamente.");
+
+        } catch (error: any) {
+            MessageBox.error(error.message);
+            this.oFragmentBOM.open(); 
+        } finally {
+            BusyIndicator.hide();
+        }
+    }
+
+    public onCancelBOM(): void {
+        this.oFragmentBOM.close();
+        this.oContractManagement.setProperty('/arrBOM', []);
     }
 }

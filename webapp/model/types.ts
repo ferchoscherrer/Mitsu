@@ -188,6 +188,21 @@ export interface QuotationDataInSet {
 }
 
 
+// En model/types.ts
+export interface BOMItem {
+    Material: string;
+    Description: string;
+    Quantity: number;
+    Unit: string;
+    IsManual?: boolean; // Para identificar si fue agregado manualmente
+}
+
+export interface AlternativeBOMPayload {
+    Equipment: string;
+    Plant: string;
+    Items: BOMItem[];
+}
+
 interface Query {
   oMaterial : Order_Reason
 }

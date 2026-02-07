@@ -1,0 +1,67 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:t="sap.ui.table">
+    <Dialog title="{i18n>bomReviewTitle}" contentWidth="60rem">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Text text="{i18n>bomReviewInstructions}" class="sapUiSmallMarginBottom"/>
+                
+                <Toolbar>
+                    <ToolbarSpacer/>
+                    <Button text="{i18n>btnAddMaterial}" 
+                            icon="sap-icon://add" 
+                            press="onAddBOMMaterial" 
+                            type="Emphasized"
+                            visible="{mContractManagement>/isCustomBOM}"/>
+                </Toolbar>
+
+                <t:Table
+                    id="tblBOM"
+                    rows="{mContractManagement>/arrBOM}"
+                    selectionMode="None"
+                    visibleRowCount="5">
+                    <t:columns>
+                        <t:Column>
+                            <Label text="{i18n>material}"/>
+                            <t:template>
+                                <Input value="{mContractManagement>Material}" 
+                                       editable="{= ${mContractManagement>IsManual} === true }"
+                                       showValueHelp="true"
+                                       valueHelpRequest="onOpenPopUpMaterialBOM"/> 
+                            </t:template>
+                        </t:Column>
+                        <t:Column>
+                            <Label text="{i18n>description}"/>
+                            <t:template>
+                                <Input value="{mContractManagement>Description}" editable="{= ${mContractManagement>IsManual} === true }"/>
+                            </t:template>
+                        </t:Column>
+                        <t:Column>
+                            <Label text="{i18n>quantity}"/>
+                            <t:template>
+                                <Input value="{mContractManagement>Quantity}" type="Number" editable="{mContractManagement>/isCustomBOM}"/>
+                            </t:template>
+                        </t:Column>
+                        <t:Column>
+                            <Label text="{i18n>unit}"/>
+                            <t:template>
+                                <Input value="{mContractManagement>Unit}" editable="{= ${mContractManagement>IsManual} === true }"/>
+                            </t:template>
+                        </t:Column>
+                    </t:columns>
+                </t:Table>
+            </VBox>
+        </content>
+        <buttons>
+            <Button text="{i18n>modifyBOM}" 
+                    icon="sap-icon://edit" 
+                    press="onSwitchToCustomBOM" 
+                    visible="{= !${mContractManagement>/isCustomBOM} }"
+                    type="Attention"/>
+
+            <Button text="{i18n>save}" press="onConfirmBOM" type="Accept"/>
+            <Button text="{i18n>cancel}" press="onCancelBOM" type="Reject"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

@@ -462,8 +462,12 @@ export default class Main extends Controller {
         const oHeader : Header = this.oContractManagement.getProperty(`/header`);
         const oMaterial : Items = {
             oMaterial: null,
-            oCebe: null,
-            selectedKeyCenter: null,
+            //oCebe: null,
+            oCebe: { 
+                Profit: "BSMANACONT",
+                Description: ""
+            },
+            selectedKeyCenter: "TLP1",
             oOrderReason: null,
             netValue: 0,
             selectedWorkingHours: null,
@@ -623,6 +627,7 @@ export default class Main extends Controller {
         try {
             this._onValidateData();
             this.oContractManagement.setProperty(`/arrEquipment`, []);
+            this.oContractManagement.setProperty('/isEquipmentCup', false);
             this._onEquipment();
         } catch (oError: any) {
             MessageBox.error(oError.message);
@@ -789,7 +794,7 @@ export default class Main extends Controller {
         for (let i = 0; i < arrMaterial.length; i++) {
             const oMaterial = arrMaterial[i];
             const iPosition : string = ((i+1)*10).toString();
-            const oEquipmentAndWorkForce : EquipmentByWorkForce = this._equipmentAndWorForce(oMaterial.arrEquipment, oHeader.oCurrency?.CurrencyCode || "");
+            const oEquipmentAndWorkForce : EquipmentByWorkForce = this._equipmentAndWorForce(oMaterial.arrEquipment, oHeader.oCurrency?.CurrencyCode || "", iPosition);
             const oQuotationItemsInSet : QuotationItemsInSet = {
                 Currency: oHeader.oCurrency?.CurrencyCode || "",
                 Division:  oHeader.oSector?.Spart || "",
@@ -838,7 +843,7 @@ export default class Main extends Controller {
         }
     }
 
-    private _equipmentAndWorForce(arrEquipment : ItemEquipment[], sCurrency : string) : EquipmentByWorkForce {
+    private _equipmentAndWorForce(arrEquipment : ItemEquipment[], sCurrency : string, sParentItemNumber: string) : EquipmentByWorkForce {
 
         let arrQuotationEquipmentInSet : QuotationEquipmentInSet[] = [];
         let arrQuotationConditionsInSet : QuotationConditionsInSet[] = [];
@@ -846,9 +851,11 @@ export default class Main extends Controller {
         for (let i = 0; i < arrEquipment.length; i++) {
             const oEquipment = arrEquipment[i];
             const arrWorkForce = oEquipment.workForce as WorkForce[] || [];
-            const iPosition : string = ((i+1)*10).toString();
+          //  const iPosition : string = ((i+1)*10).toString();
+          const sItemNumberFormatted = sParentItemNumber.padStart(6,'0');
             const oQuotationEquipmentInSet : QuotationEquipmentInSet = {
-                ItmNumber: iPosition.padStart(6,'0'),
+                //ItmNumber: iPosition.padStart(6,'0'),
+                ItmNumber: sItemNumberFormatted,
                 Equipment: oEquipment.EquipmentB || "",
                 InstalationDate: oEquipment.InstalationDate || ""
             };
@@ -858,8 +865,10 @@ export default class Main extends Controller {
             for (const oWorkForce of arrWorkForce){
                 if (oWorkForce.key !== '06'){
                     const oQuotationConditionsInSet : QuotationConditionsInSet = {
-                        ItmNumber: iPosition.padStart(6,'0'),
-                        CondPUnt: iPosition,
+                        //ItmNumber: iPosition.padStart(6,'0'),
+                        //CondPUnt: iPosition,
+                        ItmNumber: sItemNumberFormatted, // Usamos la posición del padre
+                        CondPUnt: sParentItemNumber, // Usamos el número sin ceros extra si se requiere aquí
                         CondType: oWorkForce.monthly >=0 ? oWorkForce.key : "",
                         CondUnit: "SR",
                         CondValue: oWorkForce.monthly.toString(),
