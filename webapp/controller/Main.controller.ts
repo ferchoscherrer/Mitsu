@@ -47,6 +47,7 @@ export default class Main extends Controller {
     private oFragmentMaterial: Dialog;
     private oFragmentCabe: Dialog;
     private oFragmentOrderReason: Dialog;
+    private oFragmentShipTo: Dialog;
 
     private sPahtMaterial: string;
     private arrIndexSelectRowMaterial: number[] = [];
@@ -111,7 +112,6 @@ export default class Main extends Controller {
     //     Vtext: "Mitsubishi Electric"
     // });
     // }
-
 
 
     public async onOpenPopUpType(): Promise<void> {
@@ -405,7 +405,32 @@ export default class Main extends Controller {
         this.oFragmentRequester.open();
     }
 
+     public async onOpenPopUpShipTo(): Promise<void> {
+    this.oFragmentShipTo ??= await Fragment.load({
+        id: this.getView()?.getId(),
+        name: "contractmanagement.contractmanagement.view.fragment.TblShipTo", 
+        controller: this,
+    }) as Dialog;
+
+    this.getView()?.addDependent(this.oFragmentShipTo);
+    this.oFragmentShipTo.open();
+}
+
+
     public onSearchRequester(oEvent: TableSelectDialog$SearchEvent): void {
+
+        let sValue: string = oEvent.getParameter("value") || "";
+        let oFilter = new Filter({
+            filters: [
+                new Filter("CustomerCode", FilterOperator.Contains, sValue),
+                new Filter("Name1", FilterOperator.Contains, sValue)
+            ],
+            and: false
+        });
+        let oBinding = oEvent.getSource().getBinding("items") as ODataListBinding;
+        oBinding.filter([oFilter]);
+    }
+    public onSearchShipTo(oEvent: TableSelectDialog$SearchEvent): void {
 
         let sValue: string = oEvent.getParameter("value") || "";
         let oFilter = new Filter({
@@ -426,6 +451,17 @@ export default class Main extends Controller {
             this.oContractManagement.setProperty(`/header/oRequester`, oSelect.getObject());
         }
     }
+
+    public onSelectShipTo(oEvent: TableSelectDialog$ConfirmEvent): void {
+        const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+
+         if (oSelectedContext && oSelectedContext.length > 0) {
+        for(const oSelect of oSelectedContext){            
+            this.oContractManagement.setProperty(`/header/oShipTo`, oSelect.getObject());
+        }
+    }
+    }
+
 
     public async onOpenPopUpCurrency(): Promise<void> {
 
@@ -687,7 +723,12 @@ export default class Main extends Controller {
                 QuotationPartnersSet: [{
                     PartnNumb: oHeader.oRequester?.CustomerCode || "",
                     PartnRole: "AG"
-                }]
+                },
+                {
+                        PartnNumb: oHeader.oShipTo?.CustomerCode || "",
+                        PartnRole: "WE" // [NUEVO] Destinatario (Ship-to) 
+                    }
+            ]
             }
 //debugger
             const { data: oResponse } = await ERP.createDataERP('/QuotationHeaderSet', this.ZSD_CREATE_QUOTATION_CUSTOMER_SRV,  oJsonCreate);
@@ -977,6 +1018,7 @@ export default class Main extends Controller {
         department: null,   
         oContractType: null,
         oRequester: null,
+        oShipTo: null,
         oSalesGroup: null,
         oSalesOffice: null,
         paymentTerms: null,
@@ -1005,6 +1047,7 @@ export default class Main extends Controller {
             oOfferType: null,
             orderDate: null,
             oRequester: null,
+            oShipTo: null,
             oSalesGroup: null,
             oSalesOffice: null,
             oSalesOrganization: null,

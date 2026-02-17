@@ -11,6 +11,7 @@
         "customerOrder": null,
         "orderDate": null,
         "oRequester": null,
+        "oShipTo": null,
         "department": null,
         "paymentTerms": null,
         "validFromDate": null,

@@ -125,14 +125,21 @@
                                 value="{mContractManagement>/header/oRequester/CustomerCode} {mContractManagement>/header/oRequester/Name1}" 
                                 valueHelpRequest="onOpenPopUpRequester"
                             />
+                             <Label text="{i18n>shipto}" />
+                            <Input 
+                                showValueHelp="true" 
+                                valueHelpOnly="true" 
+                                value="{mContractManagement>/header/oShipTo/CustomerCode} {mContractManagement>/header/oShipTo/Name1}"
+                                valueHelpRequest="onOpenPopUpShipTo" 
+                                  />
                             <Label text="{i18n>department}" />
                             <Input enabled="false" value="{mContractManagement>/header/department}"/>
                             <Label text="{i18n>paymentTerms}" />
                             <Input enabled="false" value="{mContractManagement>/header/paymentTerms}"/>
                             <Label text="{i18n>validFromUntil}" />
-                            <DateRangeSelection dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
+                            <DateRangeSelection valueHelpOnly="true" dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
                             <Label text="{i18n>validFromUntilQuo}" />
-                            <DateRangeSelection dateValue="{mContractManagement>/header/validFromDateQuo}" secondDateValue="{mContractManagement>/header/validUntilDateQuo}"/>
+                            <DateRangeSelection valueHelpOnly="true" dateValue="{mContractManagement>/header/validFromDateQuo}" secondDateValue="{mContractManagement>/header/validUntilDateQuo}"/>
                             <Label text="{i18n>currency}" />
                             <Input 
                                 showValueHelp="true"

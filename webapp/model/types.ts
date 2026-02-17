@@ -52,6 +52,7 @@ export interface Header {
   customerOrder : string | null
   orderDate : Date | string | null
   oRequester : Requester | null
+  oShipTo: ShipTo | null;
   department : string | null
   paymentTerms : string | null
   validFromDate : string | null
@@ -254,6 +255,11 @@ interface SalesGroup  {
   Description: string 
 }
 interface Requester  {
+  CustomerCode: string
+  CompanyCode: string
+  Name1: string
+}
+interface ShipTo  {
   CustomerCode: string
   CompanyCode: string
   Name1: string
