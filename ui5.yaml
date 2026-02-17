@@ -17,7 +17,7 @@ server:
           url: https://ui5.sap.com
         backend:
         - path: /sap
-          destination: onPremECC_PRO
+          destination: onPremECC_QAS
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:

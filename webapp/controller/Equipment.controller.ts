@@ -192,6 +192,9 @@ export default class Equipment extends Controller {
         }
     } */
 
+/*
+        // inicio - cambio de funcion para validar si existe ya un documento de venta con el equipo
+
         public onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): void {
         const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
 
@@ -231,6 +234,81 @@ export default class Equipment extends Controller {
         }
     }
 
+    // Fin - cambio de funcion para validar si existe ya un documento de venta con el equipo
+    */
+   
+    public async onSelectEquipment(oEvent: TableSelectDialog$ConfirmEvent): Promise<void> {
+    const oSelectedContext = oEvent.getParameter("selectedContexts") as ContextV2[];
+    if (!this.sPahtEquipement || oSelectedContext.length === 0) return;
+
+    const oEquipmentObj = oSelectedContext[0].getObject() as any;
+    const sEquipmentID = oEquipmentObj.EquipmentB;
+
+    // Llamada al OData para verificar oferta previa
+    const bTieneOferta = await this._validarExistenciaOferta(sEquipmentID);
+
+    if (bTieneOferta) {
+        MessageBox.warning(
+            `Atención: El equipo ${sEquipmentID} ya tiene una oferta N°  registrada en los últimos meses. ¿Desea continuar?`,
+            {
+                actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                onClose: (sAction: string) => {
+                    if (sAction === MessageBox.Action.YES) {
+                        //this._finalizarAsignacion(oEquipmentObj);
+                        this._ejecutarAsignacionFinal(oEquipmentObj);
+                    }
+                }
+            }
+        );
+    } else {
+        //this._finalizarAsignacion(oEquipmentObj);
+        this._ejecutarAsignacionFinal(oEquipmentObj);
+    }
+}
+/*
+private _finalizarAsignacion(oEquipmentObj: any): void {
+    this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oEquipmentObj);
+    // ... resto de tu lógica para BOM o materiales
+}
+*/
+private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
+    // A. Asignación al modelo local (mContractManagement)
+    this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oEquipmentObj);
+
+    // B. Recuperar el Material del Main para el servicio de BOM
+    let sMaterialDelMain = "";
+    if (this.oInfoMaterial && this.oInfoMaterial.materialPositions && this.oInfoMaterial.materialPositions.length > 0) {
+        const iIndexPosition = this.oInfoMaterial.materialPositions[0];
+        const oMaterialObj = this.oContractManagement.getProperty(`/arrMaterial/${iIndexPosition}/oMaterial`);
+        sMaterialDelMain = oMaterialObj ? (oMaterialObj.Material || "") : "";
+    }
+
+    // C. DISPARAR FUNCIONALIDAD DE BOM (Restaurada)
+    if (oEquipmentObj.EquipmentB) {
+        // Esta es la función que abre tu diálogo de materiales y Toast
+        this.onCheckBOM(oEquipmentObj.EquipmentB, sMaterialDelMain);
+    }
+}
+
+    private async _validarExistenciaOferta(sEquipmentID: string): Promise<boolean> {
+    try {
+        // Construimos el endpoint con la llave del equipo
+        // Ejemplo: /ValidarEquipoSet('000000000010001234')
+        const sEntity = ERP.generateEntityWithKeys("/ValidaEquiposSet", { 
+            Equipo: sEquipmentID 
+        });
+
+        const { data } = await ERP.readDataKeysERP(
+            sEntity, 
+            this.ZCS_GET_COST_MAINTAIN_SRV
+        );
+
+        return data.Existe === true || data.Existe === "X";
+    } catch (error) {
+        console.error("Error al validar equipo:", error);
+        return false;
+    }
+}
 
 
     public onAddEquipment(oEvent: Button$PressEvent): void {
