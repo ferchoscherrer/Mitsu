@@ -266,6 +266,12 @@
                                         <DateRangeSelection dateValue="{mContractManagement>validFromDate}" secondDateValue="{mContractManagement>validUntilDate}"/>
                                         </t:template>
                                     </t:Column>
+                                    <t:Column width="12rem">
+                                    <Text text="{i18n>assignedEquipment}" />
+                                    <t:template>
+                                        <Text text="{path: 'mContractManagement>arrEquipment/0/EquipmentB'}" />
+                                    </t:template>
+                                    </t:Column>
                                     <t:Column width="6rem" hAlign="Center">
                                         <Text text="{i18n>viewEquipment}"/>
                                         <t:template >
