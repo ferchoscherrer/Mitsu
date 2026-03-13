@@ -7,6 +7,16 @@ export interface Items {
   selectedWorkingHours : string | null
   selectedCustomerGroup1 : string | null
   selectedCustomerGroup3 : string | null
+  //Miguel agregado para lo de Materiales: El material y cobertura deben coincidir automaticamente inicio 
+   isCustomerGroup1Locked?: boolean
+   //fin 
+  selectedCustGroup: string | null
+  //Miguel Angel se agrego paramandar el uso de tipo 
+  selectedUsageType: string | null
+    // Miguel: guarda el nombre limpio del UsoType
+  // Miguel: ejemplo "03 - Oficinas" => "Oficinas"
+  selectedUsageTypeText: string | null
+  //
   hasEquipment : boolean
   validFromDate: string | null
   validUntilDate : string | null
@@ -49,11 +59,14 @@ export interface Header {
   oSector : Sector | null
   oSalesOffice : SalesOffice | null
   oSalesGroup : SalesGroup | null
+  //Miguel Angel Inicio
   customerOrder : string | null
+  //Miguel Angel Fin
   orderDate : Date | string | null
   oRequester : Requester | null
   oShipTo: ShipTo | null;
   department : string | null
+  paymentMethod : string | null
   paymentTerms : string | null
   validFromDate : string | null
   validUntilDate : string | null
@@ -114,6 +127,7 @@ export interface QuotationHeaderIn {
   Currency: string
   DistrChan: string
   Division: string
+ PymtMeth: string
   DocType: string
   Pmnttrms: string
   PurchNoC: string
@@ -138,6 +152,9 @@ export interface QuotationItemsInSet {
   PrcGroup1: string
   PrcGroup2: string
   PrcGroup3: string
+  //Miguel Angel Inicio  
+  CustGroup: string
+  //Miguel Angel fin 
   ProfitCtr: string
   //ShortText: string
   CustMat35:string

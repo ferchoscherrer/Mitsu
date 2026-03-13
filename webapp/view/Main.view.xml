@@ -125,17 +125,49 @@
                                 value="{mContractManagement>/header/oRequester/CustomerCode} {mContractManagement>/header/oRequester/Name1}" 
                                 valueHelpRequest="onOpenPopUpRequester"
                             />
-                             <Label text="{i18n>shipto}" />
-                            <Input 
-                                showValueHelp="true" 
-                                valueHelpOnly="true" 
-                                value="{mContractManagement>/header/oShipTo/CustomerCode} {mContractManagement>/header/oShipTo/Name1}"
-                                valueHelpRequest="onOpenPopUpShipTo" 
-                                  />
-                            <Label text="{i18n>department}" />
-                            <Input enabled="false" value="{mContractManagement>/header/department}"/>
-                            <Label text="{i18n>paymentTerms}" />
-                            <Input enabled="false" value="{mContractManagement>/header/paymentTerms}"/>
+                            <Label text="{i18n>shipto}" />
+<Input 
+    showValueHelp="true" 
+    valueHelpOnly="true" 
+    value="{mContractManagement>/header/oShipTo/CustomerCode} {mContractManagement>/header/oShipTo/Name1}"
+    valueHelpRequest="onOpenPopUpShipTo" 
+/>
+<!-- Miguel Angel Inicio: Método de pago -->
+<Label text="{i18n>paymentMethod}" />
+<Select
+    id="slPaymentMethod"
+    forceSelection="false"
+    selectedKey="{mContractManagement>/header/paymentMethod}"
+    items="{
+        path: 'mContractManagement>/paymentMethods',
+        templateShareable: false
+    }">
+    <core:ListItem 
+        key="{mContractManagement>Zlsch}" 
+        text="{mContractManagement>Zlsch} - {mContractManagement>Text1}" />
+</Select>
+<!-- Miguel Angel Fin: Método de pago -->
+
+<!-- Miguel Angel Inicio: Condición de pago abajo de método de pago -->
+<Label text="{i18n>paymentTerms}" required="true" />
+<Select
+    id="slPaymentTerms"
+    forceSelection="false"
+    selectedKey="{mContractManagement>/header/paymentTerms}"
+    items="{
+        path: 'mContractManagement>/paymentTermsList',
+        templateShareable: false
+    }">
+    <core:ListItem 
+        key="{mContractManagement>Zterm}" 
+        text="{mContractManagement>Zterm} - {mContractManagement>Vtext}" />
+</Select>
+<!-- Miguel Angel Fin: Condición de pago -->
+
+<Label text="{i18n>department}" />
+<Input enabled="false" value="{mContractManagement>/header/department}"/>
+<!-- Miguel Angel Fin: Condición de pago -->
+
                             <Label text="{i18n>validFromUntil}" />
                             <DateRangeSelection valueHelpOnly="true" dateValue="{mContractManagement>/header/validFromDate}" secondDateValue="{mContractManagement>/header/validUntilDate}"/>
                             <Label text="{i18n>validFromUntilQuo}" />
@@ -216,6 +248,7 @@
                                             </Select>
                                         </t:template>
                                     </t:Column>
+                                    <!--Miguel Angel se elimina la columna de Reason Order 09/03/2026
                                     <t:Column width="20rem">
                                         <Text text="{i18n>reasonOrder}"/>
                                         <t:template >
@@ -223,7 +256,8 @@
                                                 value="{path:'mContractManagement>oOrderReason/Reason'} - {path:'mContractManagement>oOrderReason/Description'}" 
                                             />
                                         </t:template>
-                                    </t:Column>                       
+                                    </t:Column>
+                                    -->                   
                                     <t:Column width="8rem">
                                         <Text text="{i18n>netValue}"/>
                                         <t:template >
@@ -238,6 +272,8 @@
                                             </Select>
                                         </t:template>
                                     </t:Column>
+                                     <!--comentado Por Miguel Angel para el tema de Materiales: El material y cobertura deben coincidir automaticamente  este fue cambiado por el de abajo -->
+                                     <!--
                                     <t:Column width="10rem">
                                         <Text text="{i18n>customerGroup1}"/>
                                         <t:template >
@@ -246,6 +282,26 @@
                                             </Select>
                                         </t:template>
                                     </t:Column>
+                                    -->
+                                     <!--Miguel Angel Agregado Inicio  -->
+<t:Column width="10rem">
+    <Text text="{i18n>customerGroup1}"/>
+    <t:template>
+        <Select
+            items="{path : 'ZSD_CATALOGOS_SRV>/GroMatItem1Set'}"
+            forceSelection="false"
+            selectedKey="{path:'mContractManagement>selectedCustomerGroup1'}"
+            enabled="{= !${mContractManagement>isCustomerGroup1Locked} }">
+            <core:ListItem
+                key="{ZSD_CATALOGOS_SRV>Name}"
+                text="{ZSD_CATALOGOS_SRV>Name} - {ZSD_CATALOGOS_SRV>Description}"/>
+        </Select>
+    </t:template>
+</t:Column>
+
+                                      <!--Fin  -->
+
+
                                     <t:Column width="10rem">
                                         <Text text="{i18n>customerGroup3}"/>
                                         <t:template >                                
@@ -254,6 +310,23 @@
                                             </Select>
                                         </t:template>
                                     </t:Column>
+                                    
+                                    <!-- Inicio de cambios Miguel Angel 06/03/2026 -->
+       <t:Column width="12rem">
+    <Text text="{i18n>usageType}"/>
+    <t:template>
+        <Select
+            items="{path : 'ZSD_CATALOGOS_SRV>/CustomerGroupSet'}"
+            forceSelection="false"
+            selectedKey="{path:'mContractManagement>selectedUsageType'}"
+            change="onChangeUsageType">
+            <core:ListItem
+                key="{ZSD_CATALOGOS_SRV>Group}"
+                text="{ZSD_CATALOGOS_SRV>Group} - {ZSD_CATALOGOS_SRV>Description}"/>
+        </Select>
+    </t:template>
+</t:Column>
+<!-- fin de cambios Miguel Angel  -->
                                     <t:Column width="6rem">
                                         <Text text="{i18n>paymentMethod}"/>
                                         <t:template >

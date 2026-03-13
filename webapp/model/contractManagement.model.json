@@ -13,6 +13,7 @@
         "oRequester": null,
         "oShipTo": null,
         "department": null,
+        "paymentMethod": null,
         "paymentTerms": null,
         "validFromDate": null,
         "validFromDateQuo": null,
