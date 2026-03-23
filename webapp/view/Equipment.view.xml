@@ -89,7 +89,16 @@
                     <t:Column visible="{mContractManagement>/isEquipmentCup}" >
                         <Text text="{i18n>CUP}"/>
                         <t:template >
-                            <Button press="onOpenPopUpCup" type="Accept" text="{mContractManagement>cup}"/>
+                            <Button press="onOpenPopUpCup" type="Accept" text="{
+                parts: [
+                    {path: 'mContractManagement>cup'},
+                    {path: 'mContractManagement>/header/oCurrency/CurrencyCode'}
+                ],
+                type: 'sap.ui.model.type.Currency',
+                formatOptions: {
+                    showMeasure: true
+                }
+            }"/>
 
                             <!-- text="{
                                     parts: ['mContractManagement>cup'], 

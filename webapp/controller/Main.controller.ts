@@ -35,6 +35,9 @@ import BusyIndicator from "sap/ui/core/BusyIndicator";
 import Button, { Button$PressEvent } from "sap/m/Button";
 import ERP from "contractmanagement/contractmanagement/modules/ERP";
 import ODataModel from "sap/ui/model/odata/v2/ODataModel";
+import MessageToast from "sap/m/MessageToast";
+
+
 
 /**
  * @namespace contractmanagement.contractmanagement.controller
@@ -64,6 +67,22 @@ export default class Main extends Controller {
     private arrIndexSelectRowMaterial: number[] = [];
     private ZSD_CREATE_QUOTATION_CUSTOMER_SRV: ODataModel;
 
+
+    /**
+ * Copia la posición actual limpiando Equipo y CUP
+ * @param oEvent 
+ */
+/**
+ * Copia la posición actual preguntando si se desea mantener el CUP
+ * @param oEvent 
+ */
+/**
+ * Copia la posición actual preguntando si se desea mantener el CUP
+ * @param oEvent 
+ */
+
+
+
     public onInit(): void {
         this.oContractManagement = this.getOwnerComponent()?.getModel("mContractManagement") as JSONModel;
         this.oI18nModel = this.getOwnerComponent()?.getModel("i18n") as ResourceModel;
@@ -72,6 +91,74 @@ export default class Main extends Controller {
         this.ZSD_CREATE_QUOTATION_CUSTOMER_SRV = this.getOwnerComponent()?.getModel("ZSD_CREATE_QUOTATION_CUSTOMER_SRV") as ODataModel;
         this.oRouter.getRoute("RouteMain")!.attachPatternMatched(this._onRouteMatched, this);
     }
+
+
+    /**
+ * Copia la posición actual con confirmación de CUP y selección automática
+ */
+/**
+ * Copia la posición actual con confirmación de CUP y selección automática
+ * @param oEvent 
+ */
+/**
+ * Copia la posición actual con confirmación de CUP y forzado de selección de equipo
+ * Resuelve el problema de la limpieza accidental tras la asignación
+ */
+public onCopyItem(oEvent: any): void {
+    const oModel = this.getView()!.getModel("mContractManagement") as JSONModel;
+    const oCtx = oEvent.getSource().getBindingContext("mContractManagement");
+    if (!oCtx) return;
+
+    const oCurrentItem = oCtx.getObject();
+    const sYes = MessageBox.Action.YES;
+    const sNo = MessageBox.Action.NO;
+
+    MessageBox.confirm("¿Desea copiar también el valor neto del CUP?", {
+        title: "Confirmar copia de CUP",
+        actions: [sYes, sNo],
+        onClose: (oAction: any) => {
+            const aMaterials = [...(oModel.getProperty("/arrMaterial") || [])];
+            
+            let oRespaldo = null;
+            if (oAction === sYes && oCurrentItem.arrEquipment && oCurrentItem.arrEquipment.length > 0) {
+                oRespaldo = {
+                    cup: oCurrentItem.arrEquipment[0].cup,
+                    workForce: JSON.parse(JSON.stringify(oCurrentItem.arrEquipment[0].workForce || []))
+                };
+                console.log("Mitsu - Respaldo Creado:", oRespaldo);
+            }
+
+            const oNewItem = {
+                ...oCurrentItem,
+                arrEquipment: [], 
+                netValue: (oAction === sYes) ? oCurrentItem.netValue : 0,
+                hasEquipment: false,
+                tempCUP: oRespaldo, 
+                oMaterial: oCurrentItem.oMaterial ? { ...oCurrentItem.oMaterial } : null,
+                oCebe: oCurrentItem.oCebe ? { ...oCurrentItem.oCebe } : { Profit: "BSMANACONT", Description: "" }
+            };
+
+            aMaterials.push(oNewItem);
+            oModel.setProperty("/arrMaterial", aMaterials);
+            oModel.refresh(true);
+            console.log("Mitsu - Fila clonada con tempCUP:", oNewItem);
+
+            const oTable = this.byId("tblMaterial") as any;
+            if (oTable) {
+                const iNewIndex = aMaterials.length - 1;
+                setTimeout(() => {
+                    oTable.clearSelection();
+                    oTable.setSelectedIndex(iNewIndex);
+                    this.arrIndexSelectRowMaterial = [iNewIndex];
+                    oTable.setFirstVisibleRow(iNewIndex);
+                }, 200);
+            }
+        }
+    });
+}
+
+
+
 
     // Miguel: se ajustó la carga inicial del header para incluir términos de pago
     // Miguel: aquí también se deja una lista local temporal mientras se conecta la OData real

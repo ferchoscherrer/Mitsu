@@ -90,30 +90,30 @@ export default class Equipment extends Controller {
         }
     }
 
-    public onNavBack(): void{
-        if (this.oInfoMaterial?.fromTarget) {
+    public onNavBack(): void {
+    if (this.oInfoMaterial?.fromTarget) {
+        const arrIDMaterialPos = this.oInfoMaterial?.materialPositions as number[];
+        const arrEquipment: ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
+        
+        // Calculamos el total de los equipos asignados actualmente
+        let iTotalCUP: number = 0;
+        arrEquipment.forEach(oEquiment => iTotalCUP += Number(oEquiment.cup || 0));
 
-            const arrIDMaterialPos  = this.oInfoMaterial?.materialPositions as number[];
-            const arrEquipment : ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
-            let iTotalCUP : number = 0;
-
-            if (arrEquipment.length >= 1){
-
-                arrEquipment.forEach(oEquiment=> iTotalCUP += Number(oEquiment.cup || 0) )
-
-                for(const iPosition of arrIDMaterialPos){
-                    this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/netValue`, iTotalCUP);
-                }
-
-                this.oContractManagement.setProperty('/arrEquipment', []);
+        for (const iPosition of arrIDMaterialPos) {
+            // CAMBIO: Solo sobreescribimos el netValue si el cálculo del equipo es mayor a 0
+            // Si iTotalCUP es 0 (porque solo asignaste el equipo pero no abriste el CUP),
+            // mantenemos el valor que ya tenía la fila (el valor clonado).
+            if (iTotalCUP > 0) {
+                this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/netValue`, iTotalCUP);
             }
-
-            this.oRouter.getTargets()?.display(this.oInfoMaterial.fromTarget);
-            this.oContractManagement.setProperty('/oConfig/isEdiatbleEquipment', true);
-            BusyIndicator.hide();
-            return;
         }
+
+        this.oContractManagement.setProperty('/arrEquipment', []);
+        this.oRouter.getTargets()?.display(this.oInfoMaterial.fromTarget);
+        this.oContractManagement.setProperty('/oConfig/isEdiatbleEquipment', true);
+        BusyIndicator.hide();
     }
+}
 
     public async onOpenPopUpEquipment(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
 
@@ -272,10 +272,21 @@ private _finalizarAsignacion(oEquipmentObj: any): void {
 }
 */
 private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
-    // A. Asignación al modelo local (mContractManagement)
-    this.oContractManagement.setProperty(`${this.sPahtEquipement}`, oEquipmentObj);
+    // 1. Obtenemos lo que ya hay en esa fila del equipo (el workForce que inyectamos en onAdd)
+    const oCurrentEquipData = this.oContractManagement.getProperty(this.sPahtEquipement);
 
-    // B. Recuperar el Material del Main para el servicio de BOM
+    // 2. FUSIONAMOS: Tomamos todo lo de SAP (oEquipmentObj) 
+    // PERO mantenemos el cup y workForce que ya teníamos
+    const oFusedEquipment = {
+        ...oEquipmentObj, 
+        cup: oCurrentEquipData.cup || 0,
+        workForce: oCurrentEquipData.workForce || []
+    };
+
+    // 3. Guardamos el objeto fusionado
+    this.oContractManagement.setProperty(this.sPahtEquipement, oFusedEquipment);
+
+    // 4. Lógica de BOM (original)
     let sMaterialDelMain = "";
     if (this.oInfoMaterial && this.oInfoMaterial.materialPositions && this.oInfoMaterial.materialPositions.length > 0) {
         const iIndexPosition = this.oInfoMaterial.materialPositions[0];
@@ -283,9 +294,7 @@ private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
         sMaterialDelMain = oMaterialObj ? (oMaterialObj.Material || "") : "";
     }
 
-    // C. DISPARAR FUNCIONALIDAD DE BOM (Restaurada)
     if (oEquipmentObj.EquipmentB) {
-        // Esta es la función que abre tu diálogo de materiales y Toast
         this.onCheckBOM(oEquipmentObj.EquipmentB, sMaterialDelMain);
     }
 }
@@ -311,19 +320,41 @@ private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
 }
 
 
-    public onAddEquipment(oEvent: Button$PressEvent): void {
-        const arrEquipments: ItemEquipment[] = this.oContractManagement.getProperty(`/arrEquipment`);
-        arrEquipments.push({
-            EquipmentB: null,
-            InstalationDate: null,
-            DescriptionE: null,
-            Emplaz: null,
-            Location: null,
-            DescriptionL: null,
-            Partner: null
-        });
-        this.oContractManagement.refresh(true);
-    }
+public onAddEquipment(oEvent: Button$PressEvent): void {
+    const arrEquipments: ItemEquipment[] = this.oContractManagement.getProperty(`/arrEquipment`) || [];
+    
+    const aPos = this.oInfoMaterial?.materialPositions;
+    const iIndex = (aPos && aPos.length > 0) ? aPos[0] : null;
+
+    console.log("Mitsu - Índice de Material detectado:", iIndex);
+
+    const oMaterialPos = this.oContractManagement.getProperty(`/arrMaterial/${iIndex}`);
+    console.log("Mitsu - Datos de la fila en Main:", oMaterialPos);
+
+    const oTemp = oMaterialPos?.tempCUP;
+    console.log("Mitsu - tempCUP recuperado:", oTemp);
+
+    const oNewEquip: any = {
+        EquipmentB: null,
+        InstalationDate: null,
+        DescriptionE: null,
+        Emplaz: null,
+        Location: null,
+        DescriptionL: null,
+        Partner: null,
+        cup: oTemp ? oTemp.cup : 0,
+        workForce: oTemp ? [...oTemp.workForce] : [] 
+    };
+
+    console.log("Mitsu - Nuevo Equipo creado con WorkForce:", oNewEquip.workForce);
+
+    arrEquipments.push(oNewEquip);
+    this.oContractManagement.setProperty('/arrEquipment', arrEquipments);
+    this.oContractManagement.refresh(true);
+}
+
+
+
 
     public onDeleteEquipment(){
 
@@ -361,42 +392,35 @@ private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
         this.arrIndexSelectRow = arrSelectedRow;
     }
 
-    public onSaveEquipment () {
-        BusyIndicator.show(0);
+   public onSaveEquipment() {
+    BusyIndicator.show(0);
+    const arrIDMaterialPos = this.oInfoMaterial?.materialPositions as number[];
+    const arrEquipment: ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
 
-        const arrIDMaterialPos  = this.oInfoMaterial?.materialPositions as number[];
-        const arrEquipment : ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
-
-        if (arrEquipment.length === 0){
-            MessageBox.information(this.oI18n.getText("errAddEquipment") || '')
-        }else{
-
-            for(const iPosition of arrIDMaterialPos){
-                this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/arrEquipment`, arrEquipment);
-            }
-
-            this.onNavBack();
+    if (arrEquipment.length === 0) {
+        MessageBox.information(this.oI18n.getText("errAddEquipment") || '');
+    } else {
+        for (const iPosition of arrIDMaterialPos) {
+            // Inyectamos el arreglo completo
+            this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/arrEquipment`, arrEquipment);
+            this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/hasEquipment`, true);
+            
+            // Calculamos el valor final para la tabla del Main
+            let iTotalCUP = 0;
+            arrEquipment.forEach(e => iTotalCUP += Number(e.cup || 0));
+            this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/netValue`, iTotalCUP);
         }
-
-        BusyIndicator.hide();
-
+        
+        // REFRESH CRÍTICO: Esto hace que el Main "despierte" y vea los nuevos datos
+        this.oContractManagement.refresh(true);
+        this.onNavBack();
     }
+    BusyIndicator.hide();
+}
 
-    public onClear () {
-        const arrEquipment : ItemEquipment[] = this.oContractManagement.getProperty('/arrEquipment');
 
-        for(let i=0; i < arrEquipment.length; i++){
-            arrEquipment[i] = {
-                DescriptionE: null,
-                Emplaz: null,
-                DescriptionL: null,
-                EquipmentB: null,
-                InstalationDate: null,
-                Location: null,
-                Partner: null
-            };
-        }        
-    }
+
+
 
     public async onOpenPopUpCup(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
         this.onGetPathEquipement(oEvent);
@@ -464,80 +488,63 @@ private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
     //fin - se comenta funcion para mejorarla
 
     // inicio - funcion mejorada
-    private async _onGetWorkForce() : Promise<void> {
-        BusyIndicator.show(0);
-        try {            
-            // 1. Recuperamos el objeto del equipo actual usando el path guardado
-            // (Asegúrate de que 'sPahtEquipement' se haya seteado en onOpenPopUpCup)
-            const oEquipment = this.oContractManagement.getProperty(this.sPahtEquipement);
-            
-            // 2. Obtenemos el ID del equipo (EquipmentB)
-            // Si tu propiedad se llama diferente (ej. Equipment), cámbialo aquí.
-            const sEquipmentID = oEquipment.EquipmentB;
+    private async _onGetWorkForce(): Promise<void> {
+    BusyIndicator.show(0);
+    try {
+        const oEquipment = this.oContractManagement.getProperty(this.sPahtEquipement);
 
-            if (!sEquipmentID) {
-                throw new Error("No se ha identificado el número de equipo para consultar la mano de obra.");
-            }
-
-            // 3. Llamada dinámica al OData inyectando el ID del equipo
-            const { data } = await ERP.readDataKeysERP(
-                `/ManoObraSet('${sEquipmentID}')`, 
-                this.ZCS_GET_COST_MAINTAIN_SRV
-            );
-            
-            // 4. Mapeo de resultados (Lógica original conservada)
-            const arrResults : WorkForce[] = [
-                {
-                    key:'ZCS1', item: "Mano de Obra", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12)
-                },
-                {
-                    key:'ZCS2', item: "Serv trasl/Atn a falla", annual: 0, date: new Date(), monthly: 0
-                },
-                {
-                    key:'ZCS3', item: "Otros materiales y/o inventarios", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12)
-                },
-                {
-                    key:'ZCS4', item: "Gastos de operación y venta", annual: 0, date: new Date(), monthly: 0
-                },
-                {
-                    key:'ZCS5', item: "Utilidad", annual: 0, date: new Date(), monthly: 0
-                },
-                {
-                    key:'06', item: "Total", annual: 0, date: new Date(), monthly: 0
-                }
-            ];
-
-            if (arrResults.length <= 0) 
-                throw new Error(this.oI18n.getText("noDataWorkForce"));
-                           
-            this.oContractManagement.setProperty('/arrWorkForce', arrResults);
+        // Si el equipo ya tiene datos de mano de obra (inyectados desde onAddEquipment), los usamos
+        if (oEquipment.workForce && oEquipment.workForce.length > 0) {
+            this.oContractManagement.setProperty('/arrWorkForce', oEquipment.workForce);
             this._onCalculateTotalWorkForce();
-
-        } catch (oError: any) {
-            this.oContractManagement.setProperty('/arrWorkForce', []);
-            // Manejo de error más amigable si falla la lectura del equipo
-            const sMsg = oError.message || "Error al obtener datos de mano de obra";
-            MessageBox.error(sMsg);
-        } finally {
-            this.oContractManagement.refresh(true);
             BusyIndicator.hide();
+            return; 
         }
-    }
-    //fin - funcion mejorada
 
+        const sEquipmentID = oEquipment.EquipmentB;
+        if (!sEquipmentID) {
+            throw new Error("No se ha identificado el número de equipo.");
+        }
+
+        const { data } = await ERP.readDataKeysERP(`/ManoObraSet('${sEquipmentID}')`, this.ZCS_GET_COST_MAINTAIN_SRV);
+        
+        // Mapeo normal de resultados...
+        const arrResults : WorkForce[] = [
+            { key:'ZCS1', item: "Mano de Obra", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12) },
+            { key:'ZCS2', item: "Serv trasl/Atn a falla", annual: 0, date: new Date(), monthly: 0 },
+            { key:'ZCS3', item: "Otros materiales y/o inventarios", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12) },
+            { key:'ZCS4', item: "Gastos de operación y venta", annual: 0, date: new Date(), monthly: 0 },
+            { key:'ZCS5', item: "Utilidad", annual: 0, date: new Date(), monthly: 0 },
+            { key:'06', item: "Total", annual: 0, date: new Date(), monthly: 0 }
+        ];
+
+        this.oContractManagement.setProperty('/arrWorkForce', arrResults);
+        this._onCalculateTotalWorkForce();
+
+    } catch (oError: any) {
+        this.oContractManagement.setProperty('/arrWorkForce', []);
+        MessageBox.error(oError.message || "Error al obtener datos");
+    } finally {
+        this.oContractManagement.refresh(true);
+        BusyIndicator.hide();
+    }
+}
     public onCloseWorkForce() {
         this.oContractManagement.setProperty('/arrWorkForce', []);
         this.oFragmentCup.close();
     }
 
-    public onSaveWorkForce() {
-        const arrWorkForce : any[]= this.oContractManagement.getProperty('/arrWorkForce');
-        const oFoundTotalMonthly = arrWorkForce.find((oWorkForce)=> oWorkForce.key === '06');
+public onSaveWorkForce() {
+    const arrWorkForce: any[] = this.oContractManagement.getProperty('/arrWorkForce');
+    const oFoundTotalMonthly = arrWorkForce.find((oWorkForce: any) => oWorkForce.key === '06');
 
+    if (oFoundTotalMonthly) {
+        // Actualizamos el equipo en la ruta específica
         this.oContractManagement.setProperty(`${this.sPahtEquipement}/cup`, oFoundTotalMonthly.monthly);
         this.oContractManagement.setProperty(`${this.sPahtEquipement}/workForce`, arrWorkForce);
-        this.onCloseWorkForce();
     }
+    this.onCloseWorkForce();
+}
 
     public _onCalculateTotalWorkForce() {
         const arrWorkForce = this.oContractManagement.getProperty('/arrWorkForce');

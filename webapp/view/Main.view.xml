@@ -125,13 +125,15 @@
                                 value="{mContractManagement>/header/oRequester/CustomerCode} {mContractManagement>/header/oRequester/Name1}" 
                                 valueHelpRequest="onOpenPopUpRequester"
                             />
-                            <Label text="{i18n>shipto}" />
+<!-- se comento lo de SHIPTO o destinatario esto es para lo del 1000 y lo del 8000mil  -->
+ <Label text="{i18n>shipto}" />
 <Input 
     showValueHelp="true" 
     valueHelpOnly="true" 
     value="{mContractManagement>/header/oShipTo/CustomerCode} {mContractManagement>/header/oShipTo/Name1}"
     valueHelpRequest="onOpenPopUpShipTo" 
 />
+
 <!-- Miguel Angel Inicio: Método de pago -->
 <Label text="{i18n>paymentMethod}" />
 <Select
@@ -163,9 +165,10 @@
         text="{mContractManagement>Zterm} - {mContractManagement>Vtext}" />
 </Select>
 <!-- Miguel Angel Fin: Condición de pago -->
-
-<Label text="{i18n>department}" />
+<!-- se comenta lo de Área / Department
+<Label text="{i180.n>department}" />
 <Input enabled="false" value="{mContractManagement>/header/department}"/>
+-->
 <!-- Miguel Angel Fin: Condición de pago -->
 
                             <Label text="{i18n>validFromUntil}" />
@@ -212,7 +215,7 @@
                                 rows="{mContractManagement>/arrMaterial}"
                                 selectionMode="MultiToggle">
                                 <t:layoutData>
-                                    <FlexItemData growFactor="1" shrinkFactor="1" />
+                                    <FlexItemData growFactor="1" shrinkFactor="1" />  
                                 </t:layoutData>
                                 <t:rowMode>
                                     <rowmodes:Auto />
@@ -258,12 +261,24 @@
                                         </t:template>
                                     </t:Column>
                                     -->                   
-                                    <t:Column width="8rem">
-                                        <Text text="{i18n>netValue}"/>
-                                        <t:template >
-                                            <Input value="{path: 'mContractManagement>netValue'}" editable="false"/>
-                                        </t:template>
-                                    </t:Column>
+                                    <t:Column width="9rem">
+    <Text text="{i18n>netValue}"/>
+    <t:template>
+        <Input 
+            value="{
+                parts: [
+                    {path: 'mContractManagement>netValue'},
+                    {path: 'mContractManagement>/header/oCurrency/CurrencyCode'}
+                ],
+                type: 'sap.ui.model.type.Currency',
+                formatOptions: {
+                    showMeasure: false
+                }
+            }" 
+            editable="false"
+            textAlign="End"/>
+    </t:template>
+</t:Column>
                                     <t:Column width="13rem">
                                         <Text text="{i18n>workingHours}"/>
                                         <t:template >
@@ -358,6 +373,16 @@
                                         </t:template>
                                     </t:Column>
                                 </t:columns>
+                                <t:Column width="6rem" hAlign="Center">
+    <Text text="{i18n>copyItem}"/>
+    <t:template>
+        <Button 
+            press=".onCopyItem" 
+            icon="sap-icon://copy" 
+            type="Transparent"
+            tooltip="{i18n>copyItemTooltip}"/>
+    </t:template>
+</t:Column>
                                 <t:noData>
                                     <IllustratedMessage
                                         illustrationType="sapIllus-SimpleEmptyList"
