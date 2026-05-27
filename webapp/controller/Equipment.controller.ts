@@ -55,24 +55,21 @@ export default class Equipment extends Controller {
     public formatter = formatter;
 
     /*eslint-disable @typescript-eslint/no-empty-function*/
-    public onInit(): void {
-        this.oContractManagement = this.getOwnerComponent()?.getModel("mContractManagement") as JSONModel;
-        this.oI18nModel = this.getOwnerComponent()?.getModel("i18n") as ResourceModel;
-        this.oI18n = this.oI18nModel.getResourceBundle() as ResourceBundle;
-        this.oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
-        this.ZCS_GET_COST_MAINTAIN_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_COST_MAINTAIN_SRV") as ODataModel;
+  public onInit(): void {
+    this.oContractManagement = this.getOwnerComponent()?.getModel("mContractManagement") as JSONModel;
+    this.oI18nModel = this.getOwnerComponent()?.getModel("i18n") as ResourceModel;
+    this.oI18n = this.oI18nModel.getResourceBundle() as ResourceBundle;
+    this.oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
+    this.ZCS_GET_COST_MAINTAIN_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_COST_MAINTAIN_SRV") as ODataModel;
+    this.ZCS_GET_BOM_MATERIAL_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_BOM_MATERIAL_SRV") as ODataModel;
 
-
-        // --- INICIO CÓDIGO NUEVO (Inicializar modelo BOM) ---
-        // Asegúrate de que este ID "ZCS_GET_BOM_MATERIAL_SRV" coincida con tu manifest.json
-        this.ZCS_GET_BOM_MATERIAL_SRV = this.getOwnerComponent()?.getModel("ZCS_GET_BOM_MATERIAL_SRV") as ODataModel; 
-        // --- FIN CÓDIGO NUEVO ---
-
-        this.oTarget = this.oRouter.getTarget("TargetEquipment") as Target;
-        this.oTarget.attachDisplay((oEvent: Target$DisplayEvent) => {
-            this.oInfoMaterial = oEvent.getParameter("data") as RoutingEquipment;
-        });
-    }
+    this.oTarget = this.oRouter.getTarget("TargetEquipment") as Target;
+    this.oTarget.attachDisplay((oEvent: Target$DisplayEvent) => {
+        this.oInfoMaterial = oEvent.getParameter("data") as RoutingEquipment;
+        console.log("=== TargetEquipment.attachDisplay ===");
+        console.log("Data recibida en navegación:", this.oInfoMaterial);
+    });
+}
 
 
     public onValidateNumber(oEvent: any): void {
@@ -272,27 +269,35 @@ private _finalizarAsignacion(oEquipmentObj: any): void {
 }
 */
 private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
-    // 1. Obtenemos lo que ya hay en esa fila del equipo (el workForce que inyectamos en onAdd)
-    const oCurrentEquipData = this.oContractManagement.getProperty(this.sPahtEquipement);
+    console.log("=== _ejecutarAsignacionFinal ===");
+    console.log("Ruta equipo actual:", this.sPahtEquipement);
+    console.log("Equipo seleccionado desde popup:", JSON.parse(JSON.stringify(oEquipmentObj)));
 
-    // 2. FUSIONAMOS: Tomamos todo lo de SAP (oEquipmentObj) 
-    // PERO mantenemos el cup y workForce que ya teníamos
+    const oCurrentEquipData = this.oContractManagement.getProperty(this.sPahtEquipement);
+    console.log("Datos actuales antes de fusionar:", JSON.parse(JSON.stringify(oCurrentEquipData)));
+
     const oFusedEquipment = {
-        ...oEquipmentObj, 
+        ...oEquipmentObj,
         cup: oCurrentEquipData.cup || 0,
         workForce: oCurrentEquipData.workForce || []
     };
 
-    // 3. Guardamos el objeto fusionado
+    console.log("Equipo fusionado FINAL:", JSON.parse(JSON.stringify(oFusedEquipment)));
+
     this.oContractManagement.setProperty(this.sPahtEquipement, oFusedEquipment);
 
-    // 4. Lógica de BOM (original)
+    console.log("Equipo guardado en modelo:", JSON.parse(JSON.stringify(
+        this.oContractManagement.getProperty(this.sPahtEquipement)
+    )));
+
     let sMaterialDelMain = "";
     if (this.oInfoMaterial && this.oInfoMaterial.materialPositions && this.oInfoMaterial.materialPositions.length > 0) {
         const iIndexPosition = this.oInfoMaterial.materialPositions[0];
         const oMaterialObj = this.oContractManagement.getProperty(`/arrMaterial/${iIndexPosition}/oMaterial`);
         sMaterialDelMain = oMaterialObj ? (oMaterialObj.Material || "") : "";
     }
+
+    console.log("Material tomado del Main para BOM:", sMaterialDelMain);
 
     if (oEquipmentObj.EquipmentB) {
         this.onCheckBOM(oEquipmentObj.EquipmentB, sMaterialDelMain);
@@ -321,36 +326,66 @@ private _ejecutarAsignacionFinal(oEquipmentObj: any): void {
 
 
 public onAddEquipment(oEvent: Button$PressEvent): void {
-    const arrEquipments: ItemEquipment[] = this.oContractManagement.getProperty(`/arrEquipment`) || [];
-    
-    const aPos = this.oInfoMaterial?.materialPositions;
-    const iIndex = (aPos && aPos.length > 0) ? aPos[0] : null;
+    try {
+        console.log("=== onAddEquipment ===");
+        console.log("oInfoMaterial:", this.oInfoMaterial);
 
-    console.log("Mitsu - Índice de Material detectado:", iIndex);
+        const arrEquipments: ItemEquipment[] = this.oContractManagement.getProperty("/arrEquipment") || [];
+        console.log("arrEquipments actual:", arrEquipments);
 
-    const oMaterialPos = this.oContractManagement.getProperty(`/arrMaterial/${iIndex}`);
-    console.log("Mitsu - Datos de la fila en Main:", oMaterialPos);
+        const aPos = this.oInfoMaterial?.materialPositions;
+        console.log("materialPositions:", aPos);
 
-    const oTemp = oMaterialPos?.tempCUP;
-    console.log("Mitsu - tempCUP recuperado:", oTemp);
+        if (!aPos || aPos.length === 0) {
+            console.error("No hay materialPositions en oInfoMaterial");
+            MessageBox.error("No se encontró la posición del material para agregar el equipo.");
+            return;
+        }
 
-    const oNewEquip: any = {
-        EquipmentB: null,
-        InstalationDate: null,
-        DescriptionE: null,
-        Emplaz: null,
-        Location: null,
-        DescriptionL: null,
-        Partner: null,
-        cup: oTemp ? oTemp.cup : 0,
-        workForce: oTemp ? [...oTemp.workForce] : [] 
-    };
+        const iIndex = aPos[0];
+        console.log("iIndex detectado:", iIndex);
 
-    console.log("Mitsu - Nuevo Equipo creado con WorkForce:", oNewEquip.workForce);
+        const sMaterialPath = `/arrMaterial/${iIndex}`;
+        console.log("Ruta material:", sMaterialPath);
 
-    arrEquipments.push(oNewEquip);
-    this.oContractManagement.setProperty('/arrEquipment', arrEquipments);
-    this.oContractManagement.refresh(true);
+        const oMaterialPos = this.oContractManagement.getProperty(sMaterialPath);
+        console.log("oMaterialPos:", oMaterialPos);
+
+        if (!oMaterialPos) {
+            console.error("No existe la fila del material en la ruta:", sMaterialPath);
+            MessageBox.error(`No existe el material en la ruta ${sMaterialPath}`);
+            return;
+        }
+
+        const oTemp = oMaterialPos?.tempCUP;
+        console.log("tempCUP recuperado:", oTemp);
+
+        const oNewEquip: any = {
+            EquipmentB: null,
+            InstalationDate: null,
+            DescriptionE: null,
+            Emplaz: null,
+            Location: null,
+            DescriptionL: null,
+            Partner: null,
+            cup: oTemp ? oTemp.cup : 0,
+            workForce: oTemp ? JSON.parse(JSON.stringify(oTemp.workForce || [])) : []
+        };
+
+        console.log("Nuevo equipo a insertar:", oNewEquip);
+
+        arrEquipments.push(oNewEquip);
+
+        console.log("arrEquipments después push:", arrEquipments);
+
+        this.oContractManagement.setProperty("/arrEquipment", arrEquipments);
+        this.oContractManagement.refresh(true);
+
+        console.log("Modelo final /arrEquipment:", this.oContractManagement.getProperty("/arrEquipment"));
+    } catch (error) {
+        console.error("Error en onAddEquipment:", error);
+        MessageBox.error("Error al agregar equipo. Revisa la consola.");
+    }
 }
 
 
@@ -422,19 +457,34 @@ public onAddEquipment(oEvent: Button$PressEvent): void {
 
 
 
-    public async onOpenPopUpCup(oEvent : Input$ValueHelpRequestEvent): Promise<void> {
-        this.onGetPathEquipement(oEvent);
-        await this._onGetWorkForce();
+  // 🔧 FIX: Este método se dispara desde un BUTTON, no desde un Input
+// Por eso NO debemos usar Input$ValueHelpRequestEvent
+public async onOpenPopUpCup(oEvent: any): Promise<void> {
 
-        this.oFragmentCup ??= await Fragment.load({
-            id: this.getView()?.getId(),
-            name: "contractmanagement.contractmanagement.view.fragment.DialogCup",
-            controller: this,
-        }) as Dialog;
+    // 🔥 AQUÍ OBTENEMOS EL PATH REAL DEL EQUIPO SELECCIONADO
+    const oSource = oEvent.getSource(); // botón presionado
+    const oBindingContext = oSource.getBindingContext("mContractManagement");
 
-        this.getView()?.addDependent(this.oFragmentCup);
-        this.oFragmentCup.open();
-    }
+    // 🔴 ESTE ES EL PATH CRÍTICO (ej: /arrEquipment/1)
+    this.sPahtEquipement = oBindingContext.getPath();
+
+    console.log("=== onOpenPopUpCup ===");
+    console.log("Path del equipo seleccionado:", this.sPahtEquipement);
+    console.log("Equipo seleccionado:", this.oContractManagement.getProperty(this.sPahtEquipement));
+
+    // 🔧 CARGAMOS LOS DATOS (local o servicio)
+    await this._onGetWorkForce();
+
+    // 🔧 Abrimos el popup
+    this.oFragmentCup ??= await Fragment.load({
+        id: this.getView()?.getId(),
+        name: "contractmanagement.contractmanagement.view.fragment.DialogCup",
+        controller: this,
+    }) as Dialog;
+
+    this.getView()?.addDependent(this.oFragmentCup);
+    this.oFragmentCup.open();
+}
 
 
     //inicio - se comenta funcion para mejorarla
@@ -491,25 +541,52 @@ public onAddEquipment(oEvent: Button$PressEvent): void {
     private async _onGetWorkForce(): Promise<void> {
     BusyIndicator.show(0);
     try {
-        const oEquipment = this.oContractManagement.getProperty(this.sPahtEquipement);
+console.log("=== _onGetWorkForce ===");
+console.log("Path recibido:", this.sPahtEquipement);
 
-        // Si el equipo ya tiene datos de mano de obra (inyectados desde onAddEquipment), los usamos
-        if (oEquipment.workForce && oEquipment.workForce.length > 0) {
-            this.oContractManagement.setProperty('/arrWorkForce', oEquipment.workForce);
-            this._onCalculateTotalWorkForce();
-            BusyIndicator.hide();
-            return; 
-        }
+if (!this.sPahtEquipement) {
+    console.error("❌ ERROR: sPahtEquipement está vacío");
+    MessageBox.error("No se encontró el equipo seleccionado.");
+    return;
+}
+
+        const oEquipment = this.oContractManagement.getProperty(this.sPahtEquipement);
+        console.log("Equipo recuperado desde modelo:", JSON.parse(JSON.stringify(oEquipment)));
+
+     if (oEquipment.workForce && oEquipment.workForce.length > 0) {
+
+    console.log("El equipo YA tiene workForce local.");
+
+    // 🔥 FIX: Convertir fechas string → Date
+    const arrFixedWorkForce = oEquipment.workForce.map((item: any) => {
+        return {
+            ...item,
+            date: item.date ? new Date(item.date) : new Date()
+        };
+    });
+
+    console.log("WorkForce corregido:", arrFixedWorkForce);
+
+    this.oContractManagement.setProperty('/arrWorkForce', arrFixedWorkForce);
+
+    this._onCalculateTotalWorkForce();
+
+    BusyIndicator.hide();
+    return;
+}
 
         const sEquipmentID = oEquipment.EquipmentB;
+        console.log("No tenía workForce local. Se consultará servicio para equipo:", sEquipmentID);
+
         if (!sEquipmentID) {
             throw new Error("No se ha identificado el número de equipo.");
         }
 
         const { data } = await ERP.readDataKeysERP(`/ManoObraSet('${sEquipmentID}')`, this.ZCS_GET_COST_MAINTAIN_SRV);
-        
-        // Mapeo normal de resultados...
-        const arrResults : WorkForce[] = [
+
+        console.log("Respuesta servicio ManoObraSet:", data);
+
+        const arrResults: WorkForce[] = [
             { key:'ZCS1', item: "Mano de Obra", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12) },
             { key:'ZCS2', item: "Serv trasl/Atn a falla", annual: 0, date: new Date(), monthly: 0 },
             { key:'ZCS3', item: "Otros materiales y/o inventarios", annual: data.ValorTotal, date: new Date(), monthly: (data.ValorTotal/12) },
@@ -518,10 +595,17 @@ public onAddEquipment(oEvent: Button$PressEvent): void {
             { key:'06', item: "Total", annual: 0, date: new Date(), monthly: 0 }
         ];
 
+        console.log("WorkForce armado desde servicio:", JSON.parse(JSON.stringify(arrResults)));
+
         this.oContractManagement.setProperty('/arrWorkForce', arrResults);
         this._onCalculateTotalWorkForce();
 
+        console.log("arrWorkForce final en popup:", JSON.parse(JSON.stringify(
+            this.oContractManagement.getProperty('/arrWorkForce')
+        )));
+
     } catch (oError: any) {
+        console.error("Error en _onGetWorkForce:", oError);
         this.oContractManagement.setProperty('/arrWorkForce', []);
         MessageBox.error(oError.message || "Error al obtener datos");
     } finally {
@@ -529,40 +613,113 @@ public onAddEquipment(oEvent: Button$PressEvent): void {
         BusyIndicator.hide();
     }
 }
-    public onCloseWorkForce() {
-        this.oContractManagement.setProperty('/arrWorkForce', []);
-        this.oFragmentCup.close();
-    }
-
-public onSaveWorkForce() {
-    const arrWorkForce: any[] = this.oContractManagement.getProperty('/arrWorkForce');
-    const oFoundTotalMonthly = arrWorkForce.find((oWorkForce: any) => oWorkForce.key === '06');
-
-    if (oFoundTotalMonthly) {
-        // Actualizamos el equipo en la ruta específica
-        this.oContractManagement.setProperty(`${this.sPahtEquipement}/cup`, oFoundTotalMonthly.monthly);
-        this.oContractManagement.setProperty(`${this.sPahtEquipement}/workForce`, arrWorkForce);
-    }
-    this.onCloseWorkForce();
+  public onCloseWorkForce(): void {
+    this.oContractManagement.setProperty("/arrWorkForce", []);
+    this.oContractManagement.refresh(true);
+    this.oFragmentCup.close();
 }
 
-    public _onCalculateTotalWorkForce() {
-        const arrWorkForce = this.oContractManagement.getProperty('/arrWorkForce');
-        let iTotalAnnual : number = 0;
-        let iTotalMonthly : number = 0;
+public onSaveWorkForce(): void {
+    console.log("=== onSaveWorkForce ===");
 
-        for(const oWorkForce of arrWorkForce){
-            if (oWorkForce.key !== '06'){
-                iTotalAnnual += Number(oWorkForce.annual || 0);
-                iTotalMonthly += Number(oWorkForce.monthly || 0);
-            }
-        }
-
-        arrWorkForce[5].annual = iTotalAnnual;
-        arrWorkForce[5].monthly = iTotalMonthly;
-
+    if (!this.sPahtEquipement) {
+        console.error("❌ ERROR: No hay path del equipo");
+        MessageBox.error("No se pudo guardar el CUP, no se identificó el equipo.");
+        return;
     }
 
+    console.log("Ruta equipo actual:", this.sPahtEquipement);
+
+    const arrWorkForce: any[] = this.oContractManagement.getProperty("/arrWorkForce") || [];
+    console.log("arrWorkForce del popup antes de guardar:", JSON.parse(JSON.stringify(arrWorkForce)));
+
+    const oFoundTotalMonthly = arrWorkForce.find((oWorkForce: any) => oWorkForce.key === "06");
+    console.log("Fila TOTAL encontrada:", JSON.parse(JSON.stringify(oFoundTotalMonthly)));
+
+    if (!oFoundTotalMonthly) {
+        console.warn("No se encontró la fila con key = '06'");
+        MessageBox.warning("No se encontró el total del CUP.");
+        return;
+    }
+
+    const arrToSave = arrWorkForce.map((item: any) => {
+        return {
+            ...item,
+            date: item.date instanceof Date ? item.date.toISOString() : item.date
+        };
+    });
+
+    // Guardar CUP y workforce en el equipo actual
+    this.oContractManagement.setProperty(
+        `${this.sPahtEquipement}/cup`,
+        Number(oFoundTotalMonthly.monthly || 0)
+    );
+    this.oContractManagement.setProperty(
+        `${this.sPahtEquipement}/workForce`,
+        arrToSave
+    );
+
+    // Recalcular total de CUP de todos los equipos
+    const arrIDMaterialPos = this.oInfoMaterial?.materialPositions || [];
+    const arrEquipment: ItemEquipment[] = this.oContractManagement.getProperty("/arrEquipment") || [];
+
+    let iTotalCUP = 0;
+    arrEquipment.forEach((e) => {
+        iTotalCUP += Number(e.cup || 0);
+    });
+
+    // Reflejar inmediatamente en el material del Main
+    for (const iPosition of arrIDMaterialPos) {
+        this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/arrEquipment`, arrEquipment);
+        this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/hasEquipment`, true);
+        this.oContractManagement.setProperty(`/arrMaterial/${iPosition}/netValue`, iTotalCUP);
+    }
+
+    this.oContractManagement.refresh(true);
+
+    console.log("CUP guardado en equipo:", this.oContractManagement.getProperty(`${this.sPahtEquipement}/cup`));
+    console.log("workForce guardado en equipo:", JSON.parse(JSON.stringify(
+        this.oContractManagement.getProperty(`${this.sPahtEquipement}/workForce`)
+    )));
+    console.log("Equipo completo después de guardar:", JSON.parse(JSON.stringify(
+        this.oContractManagement.getProperty(this.sPahtEquipement)
+    )));
+
+    this.onCloseWorkForce();
+}
+   public _onCalculateTotalWorkForce(): void {
+    const arrWorkForce = this.oContractManagement.getProperty("/arrWorkForce") || [];
+
+    console.log("=== _onCalculateTotalWorkForce ===");
+    console.log("arrWorkForce ANTES total:", JSON.parse(JSON.stringify(arrWorkForce)));
+
+    let iTotalAnnual = 0;
+    let iTotalMonthly = 0;
+
+    for (const oWorkForce of arrWorkForce) {
+        if (oWorkForce.key !== "06") {
+            iTotalAnnual += Number(oWorkForce.annual || 0);
+            iTotalMonthly += Number(oWorkForce.monthly || 0);
+        }
+    }
+
+    const iIndexTotal = arrWorkForce.findIndex((item: any) => item.key === "06");
+
+    if (iIndexTotal !== -1) {
+        arrWorkForce[iIndexTotal].annual = iTotalAnnual;
+        arrWorkForce[iIndexTotal].monthly = iTotalMonthly;
+    }
+
+    this.oContractManagement.setProperty("/arrWorkForce", arrWorkForce);
+    this.oContractManagement.refresh(true);
+
+    console.log("Total annual calculado:", iTotalAnnual);
+    console.log("Total monthly calculado:", iTotalMonthly);
+    console.log("arrWorkForce DESPUÉS total:", JSON.parse(JSON.stringify(arrWorkForce)));
+}
+public onChangeWorkForce(): void {
+    this._onCalculateTotalWorkForce();
+}
 
 
     /**
@@ -618,6 +775,7 @@ public onSaveWorkForce() {
             BusyIndicator.hide();
         }
     }
+// fin de los cambios para el cup 
 
     public async onOpenBOMDialog(): Promise<void> {
         this.oFragmentBOM ??= await Fragment.load({
@@ -681,6 +839,12 @@ public onSaveWorkForce() {
                 this.ZCS_GET_COST_MAINTAIN_SRV, 
                 oPayload
             );
+            // --- AÑADE ESTO ---
+// Esto obliga a que todos los campos vinculados al modelo se actualicen en la UI
+this.oContractManagement.refresh(true); 
+
+// Si usas un ODataModel v2 directamente para la tabla, usa:
+// this.getView().getModel().refresh(true);
 
             MessageBox.success(this.oI18n.getText("alternativeCreated") || "Alternativa creada exitosamente.");
 

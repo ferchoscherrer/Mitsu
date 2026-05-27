@@ -7,6 +7,8 @@ export interface Items {
   selectedWorkingHours : string | null
   selectedCustomerGroup1 : string | null
   selectedCustomerGroup3 : string | null
+  selectedCustomerGroup4 : string | null
+  selectedCustomerGroup5 : string | null
   //Miguel agregado para lo de Materiales: El material y cobertura deben coincidir automaticamente inicio 
    isCustomerGroup1Locked?: boolean
    //fin 
@@ -152,6 +154,8 @@ export interface QuotationItemsInSet {
   PrcGroup1: string
   PrcGroup2: string
   PrcGroup3: string
+  PrcGroup4: string
+  PrcGroup5: string
   //Miguel Angel Inicio  
   CustGroup: string
   //Miguel Angel fin 

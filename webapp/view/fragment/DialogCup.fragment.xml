@@ -1,9 +1,8 @@
 <core:FragmentDefinition
-	xmlns="sap.m"
-	xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     xmlns:t="sap.ui.table" 
-	xmlns:rowmodes="sap.ui.table.rowmodes"
-	>
+    xmlns:rowmodes="sap.ui.table.rowmodes">
     <Dialog resizable="true" verticalScrolling="false" draggable="true" contentWidth="50%" contentHeight="28%">
         <customHeader>            
             <Toolbar>
@@ -12,24 +11,28 @@
                 <Button icon="sap-icon://decline" type="Default" press="onCloseWorkForce" />
             </Toolbar>
         </customHeader>
+
         <content>
             <t:Table  
-				alternateRowColors="true"
-				busyIndicatorDelay="0"
-				enableColumnFreeze="true"
-				enableSelectAll="true"
-				enableColumnReordering="true"
-				showNoData="true"
-				selectionBehavior="RowSelector"
-				rowSelectionChange="onSelectRow"
-				rows="{mContractManagement>/arrWorkForce}"
-				selectionMode="None">
+                alternateRowColors="true"
+                busyIndicatorDelay="0"
+                enableColumnFreeze="true"
+                enableSelectAll="true"
+                enableColumnReordering="true"
+                showNoData="true"
+                selectionBehavior="RowSelector"
+                rowSelectionChange="onSelectRow"
+                rows="{mContractManagement>/arrWorkForce}"
+                selectionMode="None">
+                
                 <t:layoutData>
                     <FlexItemData growFactor="1" shrinkFactor="1" />
                 </t:layoutData>
+
                 <t:rowMode>
                     <rowmodes:Auto />
                 </t:rowMode>
+
                 <t:columns>
                     <t:Column>
                         <Label text="Rubro" />
@@ -49,19 +52,15 @@
                         <Label text="Fecha" />
                         <t:template>
                             <DatePicker editable="false" dateValue="{mContractManagement>date}" />
-                            <!-- <Text text="{mContractManagement>date}" /> -->
                         </t:template>
                     </t:Column>
 
                     <t:Column hAlign="Center">
                         <Label text="Mensual" />
                         <t:template>
-
-                        <Input 
+                           <Input 
     textAlign="Right"
-    liveChange=".onValidateNumber"
-    submit="_onCalculateTotalWorkForce"
-    change="_onCalculateTotalWorkForce"
+    change=".onChangeWorkForce"
     editable="{= ${mContractManagement>key} !== '06' }"
     value="{
         path: 'mContractManagement>monthly',
@@ -75,18 +74,6 @@
         }
     }" 
 />
-                    
-                             <!-- 
-                            <Input submit="_onCalculateTotalWorkForce" editable="{= ${mContractManagement>key} !== '06'}"
-                                value="{mContractManagement>monthly}"
-                            />
-                            -->
-                            <!-- 
-                                value="{
-                                    parts: ['mContractManagement>monthly'], 
-                                    formatter: '.formatter.formatAmmount'
-                                }"
-                             -->
                         </t:template>
                     </t:Column>
                 </t:columns>
